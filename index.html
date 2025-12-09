@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Quaker City's Contraband System</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  :root{
+    --bg:#0a1428;
+    --panel:#141c2e;
+    --accent:#dc143c;   /* main red accent preserved */
+    --accent-2:#0047ab; /* blue accent preserved */
+    --text:#ffffff;
+    --muted:#b0b8c0;
+    --card-common:#1a2332;
+    --card-uncommon:#0d3d56;
+    --card-rare:#1a2f4a;
+    --card-epic:#2a1a4a;
+    --card-legendary:#2a2a1a;
+    --shadow:0 14px 40px rgba(0,0,0,.6);
+    --glass: rgba(255,255,255,.03);
+    --radius:14px;
+    --maxw:1100px;
+  }
+
+  /* base */
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0; font-family: "Rajdhani", system-ui, -apple-system, "Segoe UI", Roboto, Inter, Arial, sans-serif; color:var(--text);}
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(220,20,60,.12), transparent 60%),
+      radial-gradient(1200px 600px at 110% 10%, rgba(0,71,171,.10), transparent 60%),
+      linear-gradient(180deg, var(--bg), #041125 120%);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:28px 18px 80px;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    gap:20px;
+  }
+
+  .page {
+    width:100%;
+    max-width:var(--maxw);
+    position:relative;
+  }
+
+  /* Topbar modeled after target site */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:18px;
+    backdrop-filter: blur(6px) saturate(1.05);
+    box-shadow:var(--shadow);
+  }
+
+  .brand {
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .brand img {
+    width:64px;
+    height:64px;
+    object-fit:contain;
+    border-radius:10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.6), 0 0 12px rgba(220,20,60,.06);
+    border:1px solid rgba(255,255,255,.06);
+    background: linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+    padding:6px;
+  }
+
+  .brand h1{
+    margin:0;
+    font-size:20px;
+    line-height:1;
+    font-weight:800;
+    letter-spacing:.6px;
+  }
+  .brand p{
+    margin:0;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1;
+  }
+
+  .top-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+
+  .top-actions a, .top-actions button{
+    color:var(--text);
+    background:transparent;
+    border:1px solid rgba(255,255,255,.06);
+    padding:8px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    text-decoration:none;
+    font-weight:700;
+    font-size:13px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    backdrop-filter: blur(4px);
+  }
+  .top-actions a:hover, .top-actions button:hover{
+    box-shadow:0 8px 24px rgba(220,20,60,.09);
+    border-color: rgba(220,20,60,.35);
+    color:var(--text);
+  }
+
+  /* main grid similar to target */
+  .main {
+    display:grid;
+    grid-template-columns: 1fr 380px;
+    gap:18px;
+    align-items:start;
+  }
+
+  /* left column bigger hero + controls */
+  .panel {
+    background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    border-radius:var(--radius);
+    padding:18px;
+    border:1px solid rgba(255,255,255,.05);
+    box-shadow:var(--shadow);
+    backdrop-filter: blur(6px) saturate(1.05);
+  }
+
+  .hero-title{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .hero-title h2{
+    margin:0 0 6px 0;
+    font-size:28px;
+    font-weight:900;
+  }
+  .hero-title .lead{
+    color:var(--muted);
+    font-size:13px;
+    margin:0;
+  }
+
+  /* category strip (tabs) */
+  .categories {
+    display:flex;
+    gap:10px;
+    margin:14px 0 18px;
+    flex-wrap:wrap;
+  }
+  .cat-btn{
+    padding:10px 14px;
+    border-radius:10px;
+    background: rgba(255,255,255,.02);
+    border:1px solid rgba(255,255,255,.04);
+    cursor:pointer;
+    font-weight:800;
+    letter-spacing:.6px;
+    color:var(--text);
+  }
+  .cat-btn.active{
+    background: linear-gradient(180deg, rgba(220,20,60,.12), rgba(0,71,171,.06));
+    border-color: rgba(220,20,60,.45);
+    box-shadow: 0 10px 30px rgba(220,20,60,.08);
+    color:var(--text);
+  }
+
+  /* spin area large center button like target */
+  .spin-wrap{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    margin-top:6px;
+    flex-wrap:wrap;
+  }
+
+  .spin-big{
+    background: linear-gradient(180deg, rgba(220,20,60,.95), rgba(180,10,40,.85));
+    color:white;
+    padding:20px 28px;
+    border-radius:14px;
+    font-size:18px;
+    font-weight:900;
+    border: 1px solid rgba(255,255,255,.14);
+    cursor:pointer;
+    box-shadow: 0 18px 40px rgba(220,20,60,.15), 0 2px 0 rgba(0,0,0,.35) inset;
+    transition: transform .08s ease;
+  }
+  .spin-big:active{ transform: translateY(2px) }
+
+  .controls {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .controls .row {
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+
+  select, button.small{
+    background: rgba(0,0,0,.25);
+    border:1px solid rgba(255,255,255,.06);
+    color:var(--text);
+    padding:8px 10px;
+    border-radius:8px;
+    font-weight:700;
+  }
+
+  /* left lower reel */
+  .reel {
+    margin-top:18px;
+    background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    border-radius:12px;
+    padding:12px;
+    border:1px solid rgba(255,255,255,.04);
+  }
+  .cut{
+    position:relative;
+    height:0;
+  }
+  .strip{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    overflow:hidden;
+    padding:10px 0;
+  }
+  .slot{
+    min-width:92px;
+    height:92px;
+    border-radius:12px;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid rgba(255,255,255,.08);
+    background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  }
+  .slot img{ width:100%; height:100%; object-fit:cover; }
+
+  /* right column (acquired items + navigation) */
+  .side {
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .nav-links{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .nav-links a{
+    background:transparent;
+    border:1px solid rgba(255,255,255,.04);
+    padding:8px 10px;
+    border-radius:10px;
+    color:var(--text);
+    text-decoration:none;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .nav-links a.active{
+    background: linear-gradient(180deg, rgba(220,20,60,.12), rgba(0,71,171,.06));
+    border-color: rgba(220,20,60,.45);
+  }
+
+  .acquired {
+    min-height:220px;
+    max-height:420px;
+    overflow:auto;
+    padding:10px;
+    border-radius:12px;
+    background: linear-gradient(180deg, rgba(255,255,255,.01), rgba(255,255,255,.00));
+    border:1px solid rgba(255,255,255,.04);
+  }
+
+  .drop-card{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:8px;
+    border:1px solid rgba(255,255,255,.04);
+    background: linear-gradient(180deg, rgba(255,255,255,.01), rgba(255,255,255,0));
+  }
+  .drop-card img{ width:56px; height:56px; border-radius:8px; object-fit:cover; }
+  .drop-details{ flex:1; }
+  .drop-details .name{ font-weight:800; font-size:14px; }
+  .drop-details .rarity{ color:var(--muted); font-size:12px; margin-top:4px; }
+
+  /* stats modal (keeps original) */
+  .stats-overlay{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.72);
+    z-index:900;
+  }
+  .stats-overlay.open{ display:flex; }
+  .stats-panel{
+    width:480px;
+    max-width:94%;
+    border-radius:12px;
+    padding:18px;
+    background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .stats-header{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .stats-title{ font-size:20px; font-weight:900; }
+  .stats-image{ width:100%; height:210px; object-fit:cover; border-radius:10px; margin-top:12px; }
+
+  /* watermark */
+  .watermark{
+    position:fixed;
+    left:14px;
+    bottom:14px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .watermark a{ color:var(--accent-2) }
+
+  /* responsive */
+  @media(max-width:980px){
+    .main{ grid-template-columns: 1fr; }
+    .side{ order:2; }
+    .panel{ order:1; }
+  }
+
+  @media(max-width:520px){
+    .brand img{ width:52px; height:52px }
+    .hero-title h2{ font-size:20px; }
+    .spin-big{ padding:14px 18px; font-size:16px; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <!-- top bar with logo and actions -->
+    <div class="topbar">
+      <div class="brand">
+        <!-- Use your uploaded Quaker.png file - must be in repo root -->
+        <img src="Quaker.png" alt="Quaker City Logo" />
+        <div>
+          <h1>Quaker City's Contraband System</h1>
+          <p class="lead">Enter the underground market. Built for Quaker City Roleplay.</p>
+        </div>
+      </div>
+
+      <div class="top-actions" role="navigation" aria-label="top actions">
+        <button id="musicToggle"><i class="fa-solid fa-volume-high"></i> Music: On</button>
+        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-discord"></i> Discord</a>
+        <a href="#" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-youtube"></i> YouTube</a>
+      </div>
+    </div>
+
+    <!-- main area -->
+    <div class="main">
+      <!-- left panel -->
+      <div class="panel">
+        <div class="hero-title">
+          <div>
+            <h2>Contraband System</h2>
+            <p class="lead">Spin the wheel to get weapons, attachments, and drugs. Test your luck and build your collection!</p>
+          </div>
+        </div>
+
+        <!-- categories like the target site -->
+        <div class="categories" role="tablist" aria-label="categories">
+          <button class="cat-btn active" data-cat="t1">Tier 1 Weaponry</button>
+          <button class="cat-btn" data-cat="t2">Tier 2 Weaponry</button>
+          <button class="cat-btn" data-cat="attach">Attachments</button>
+          <button class="cat-btn" data-cat="drugs">Drugs</button>
+        </div>
+
+        <!-- controls and big spin -->
+        <div class="spin-wrap">
+          <div class="controls">
+            <div class="row">
+              <label style="color:var(--muted); font-weight:700; font-size:13px;">Tier</label>
+              <select id="tierSelect" style="min-width:160px;">
+                <option value="t1">Tier 1</option>
+                <option value="t2">Tier 2</option>
+                <option value="attach">Attachments</option>
+                <option value="drugs">Drugs</option>
+              </select>
+            </div>
+
+            <div class="row">
+              <button id="shuffleBtn" class="small"><i class="fa-solid fa-shuffle"></i> Shuffle</button>
+              <button id="spinBtn" class="spin-big" title="Spin the wheel">SPIN!</button>
+            </div>
+
+            <div class="row" style="margin-top:6px;">
+              <small style="color:var(--muted)">Prices • Drugs • Weapons</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- reel (visual) -->
+        <div class="reel" id="reel" aria-hidden="true">
+          <div style="height:6px"></div>
+          <div class="strip" id="strip" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <!-- right column -->
+      <aside class="side">
+        <div class="panel" style="padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <strong style="letter-spacing:.6px">Acquired Items</strong>
+            <div class="nav-links" role="tablist" aria-label="view toggles">
+              <a href="#" class="active" data-view="drops">Drops</a>
+              <a href="#" data-view="t1">Tier 1</a>
+              <a href="#" data-view="t2">Tier 2</a>
+              <a href="#" data-view="attach">Attachments</a>
+              <a href="#" data-view="drugs">Drugs</a>
+            </div>
+          </div>
+
+          <div id="viewDrops" class="acquired" style="margin-top:12px;"></div>
+          <div id="viewT1" class="acquired" style="display:none; margin-top:12px;"></div>
+          <div id="viewT2" class="acquired" style="display:none; margin-top:12px;"></div>
+          <div id="viewAttach" class="acquired" style="display:none; margin-top:12px;"></div>
+          <div id="viewDrugs" class="acquired" style="display:none; margin-top:12px;"></div>
+        </div>
+
+        <div class="panel" style="padding:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>Weapon Details</strong>
+            <button id="openAny" style="background:transparent;border:0;color:var(--muted);cursor:pointer">Last</button>
+          </div>
+          <div style="margin-top:12px; color:var(--muted); font-size:13px;">
+            <div id="weaponPreview">Click any item in Acquired Items or the gallery to view stats.</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- stats modal -->
+    <div class="stats-overlay" id="statsOverlay" aria-hidden="true">
+      <div class="stats-panel">
+        <div class="stats-header">
+          <div>
+            <div class="stats-title" id="statsTitle">Item Name</div>
+            <div style="color:var(--muted); font-weight:700; margin-top:6px;" id="statsRarity">COMMON</div>
+          </div>
+          <button id="closeStats" style="background:transparent;border:0;color:var(--muted);font-size:20px;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <img class="stats-image" id="statsImage" src="" alt="">
+        <div style="margin-top:12px;">
+          <div style="display:flex; justify-content:space-between; color:var(--muted); margin-bottom:8px;">
+            <div>Damage</div><div id="statDamage" style="font-weight:900;color:var(--accent);">-</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; color:var(--muted); margin-bottom:8px;">
+            <div>Fire Rate</div><div id="statFire" style="font-weight:900;color:var(--accent-2);">-</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; color:var(--muted); margin-bottom:8px;">
+            <div>Ammo</div><div id="statAmmo" style="font-weight:900">-</div>
+          </div>
+          <div style="display:flex; justify-content:space-between; color:var(--muted);">
+            <div>Magazine</div><div id="statMag" style="font-weight:900">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="watermark">
+      <a href="https://github.com/Routeq/Quaker-City" target="_blank" rel="noopener noreferrer">Quaker City System</a>
+    </div>
+  </div>
+
+  <!-- audio -->
+  <audio id="bgmAudio" preload="auto"></audio>
+
+  <!-- JavaScript: mostly your original logic adapted to the new layout -->
+  <script>
+    // images + fallback (keeps your placeholders)
+    const IMAGES = {
+      'Ghost Glock 17': 'https://via.placeholder.com/200?text=Glock+17',
+      'Glock 19': 'https://via.placeholder.com/200?text=Glock+19',
+      'Glock 20': 'https://via.placeholder.com/200?text=Glock+20',
+      'Beretta M9': 'https://via.placeholder.com/200?text=Beretta',
+      'CZ 75': 'https://via.placeholder.com/200?text=CZ+75',
+      'Hi-Point': 'https://via.placeholder.com/200?text=Hi-Point',
+      'Tec-9': 'https://via.placeholder.com/200?text=Tec-9',
+      'MAC-10': 'https://via.placeholder.com/200?text=MAC-10',
+      'Micro UZI': 'https://via.placeholder.com/200?text=Micro+UZI',
+      'Skorpion': 'https://via.placeholder.com/200?text=Skorpion',
+      'MP5': 'https://via.placeholder.com/200?text=MP5',
+      'UMP45': 'https://via.placeholder.com/200?text=UMP45',
+      'P90': 'https://via.placeholder.com/200?text=P90',
+      'AK-47': 'https://via.placeholder.com/200?text=AK-47',
+      'AR-15': 'https://via.placeholder.com/200?text=AR-15',
+      'M4A1': 'https://via.placeholder.com/200?text=M4A1',
+      'Kriss Vector': 'https://via.placeholder.com/200?text=Kriss+Vector',
+      'ACR': 'https://via.placeholder.com/200?text=ACR',
+    };
+
+    const FALLBACK_IMG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="240"%3E%3Crect fill="%23333" width="400" height="240"/%3E%3Ctext x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23999"%3ENo Image%3C/text%3E%3C/svg%3E';
+
+    const ALL_ITEMS = [
+      ['Ghost Glock 17', 'common', 't1'],
+      ['Glock 19', 'common', 't1'],
+      ['Glock 20', 'common', 't1'],
+      ['Hi-Point', 'common', 't1'],
+      ['Beretta M9', 'uncommon', 't1'],
+      ['CZ 75', 'uncommon', 't1'],
+      ['Tec-9', 'uncommon', 't1'],
+      ['MAC-10', 'uncommon', 't1'],
+      ['Micro UZI', 'rare', 't1'],
+      ['Skorpion', 'rare', 't1'],
+      ['MP5', 'rare', 't1'],
+      ['UMP45', 'rare', 't1'],
+      ['AK-47', 'epic', 't2'],
+      ['AR-15', 'epic', 't2'],
+      ['M4A1', 'epic', 't2'],
+      ['Kriss Vector', 'epic', 't2'],
+      ['ACR', 'legendary', 't2'],
+    ];
+
+    const DRUGS = [
+      ['RP 10', 'common', 'rp_10'],
+      ['MBox 10', 'common', 'mbox_10'],
+      ['V 230', 'common', 'v_230'],
+      ['K56', 'common', 'k_56'],
+      ['Line of Green', 'uncommon', 'line_green'],
+      ['K8', 'uncommon', 'k8_greens'],
+      ['V 48', 'uncommon', 'v_48'],
+      ['Green Pint', 'uncommon', 'pint_green'],
+      ['RP 20', 'rare', 'rp_20'],
+      ['Line of Wockhardt', 'rare', 'line_wock'],
+      ['Line of Pai', 'rare', 'line_pai'],
+      ['MBox 30', 'epic', 'mbox_30'],
+      ['RP 30', 'epic', 'rp_30'],
+      ['Superman Pill', 'epic', 'superman'],
+      ['Quagen Pint', 'epic', 'quagen_pint'],
+      ['Wockhardt Pint', 'epic', 'wock_pint'],
+    ];
+
+    const ATTACHMENTS = [
+      ['Flashlight', 'uncommon', 'attach_light'],
+      ['Extended Magazine', 'rare', 'mag_ext'],
+      ['Drum Magazine', 'epic', 'drum_mag'],
+      ['Auto Sear', 'legendary', 'autosear'],
+      ['Switch', 'legendary', 'switch'],
+    ];
+
+    const WEAPON_STATS = {
+      'Ghost Glock 17': { damage: 28, fire: 750, ammo: '9mm', magStd: 15, magExt: 33 },
+      'Glock 19': { damage: 28, fire: 750, ammo: '9mm', magStd: 15, magExt: 33 },
+      'Glock 20': { damage: 35, fire: 600, ammo: '.45 ACP', magStd: 10, magExt: 21 },
+      'Beretta M9': { damage: 28, fire: 750, ammo: '9mm', magStd: 15, magExt: 30 },
+      'CZ 75': { damage: 30, fire: 750, ammo: '9mm', magStd: 16, magExt: 32 },
+      'Hi-Point': { damage: 32, fire: 400, ammo: '.45 ACP', magStd: 8, magExt: 16 },
+      'Tec-9': { damage: 25, fire: 1000, ammo: '9mm', magStd: 20, magExt: 40 },
+      'MAC-10': { damage: 27, fire: 1090, ammo: '.45 ACP', magStd: 30, magExt: 50 },
+      'Micro UZI': { damage: 25, fire: 1200, ammo: '9mm', magStd: 25, magExt: 50 },
+      'Skorpion': { damage: 23, fire: 1100, ammo: '.32 ACP', magStd: 20, magExt: 40 },
+      'MP5': { damage: 26, fire: 800, ammo: '9mm', magStd: 30, magExt: 60 },
+      'UMP45': { damage: 30, fire: 600, ammo: '.45 ACP', magStd: 25, magExt: 50 },
+      'P90': { damage: 22, fire: 900, ammo: '5.7x28', magStd: 50, magExt: 100 },
+      'AK-47': { damage: 36, fire: 600, ammo: '7.62x39', magStd: 30, magExt: 75 },
+      'AR-15': { damage: 38, fire: 700, ammo: '5.56x45', magStd: 30, magExt: 60 },
+      'M4A1': { damage: 36, fire: 800, ammo: '5.56x45', magStd: 30, magExt: 60 },
+      'Kriss Vector': { damage: 34, fire: 1200, ammo: '.45 ACP', magStd: 25, magExt: 50 },
+      'ACR': { damage: 40, fire: 750, ammo: '5.56x45', magStd: 30, magExt: 60 },
+    };
+
+    // ---- DOM references ----
+    const strip = document.getElementById('strip');
+    const tierSelect = document.getElementById('tierSelect');
+    const spinBtn = document.getElementById('spinBtn');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+
+    const viewDrops = document.getElementById('viewDrops');
+    const viewT1 = document.getElementById('viewT1');
+    const viewT2 = document.getElementById('viewT2');
+    const viewAttach = document.getElementById('viewAttach');
+    const viewDrugs = document.getElementById('viewDrugs');
+
+    const catButtons = Array.from(document.querySelectorAll('.cat-btn'));
+    const navLinks = Array.from(document.querySelectorAll('.nav-links a'));
+
+    const statsOverlay = document.getElementById('statsOverlay');
+    const closeStats = document.getElementById('closeStats');
+    const statsTitle = document.getElementById('statsTitle');
+    const statsRarity = document.getElementById('statsRarity');
+    const statsImage = document.getElementById('statsImage');
+    const statDamage = document.getElementById('statDamage');
+    const statFire = document.getElementById('statFire');
+    const statAmmo = document.getElementById('statAmmo');
+    const statMag = document.getElementById('statMag');
+
+    let dropsList = []; // for acquired items
+
+    function shuffleArr(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a; }
+    function randItem(list){ return list[Math.floor(Math.random()*list.length)]; }
+    function getStats(name){ return WEAPON_STATS[name] || { damage:0, fire:0, ammo:'-', magStd:0, magExt:0 }; }
+
+    // Render initial strip for Tier 1
+    function renderStrip(tier){
+      strip.innerHTML = '';
+      let pool = [];
+      if(tier === 'attach') pool = ATTACHMENTS.map(a=>[a[0],a[1]]);
+      else if(tier === 'drugs') pool = DRUGS.map(d=>[d[0],d[1]]);
+      else pool = ALL_ITEMS.filter(i=>i[2]===tier).map(i=>[i[0],i[1]]);
+
+      if(pool.length===0) pool = ALL_ITEMS.map(i=>[i[0],i[1]]);
+
+      // build enough tiles
+      const tiles = [];
+      const need = Math.min(48, Math.max(24, pool.length * 4));
+      for(let i=0;i<need;i++){
+        tiles.push(randItem(pool));
+      }
+      tiles.forEach(t=>{
+        const el = document.createElement('div');
+        el.className = 'slot';
+        const src = IMAGES[t[0]] || FALLBACK_IMG;
+        el.innerHTML = `<img src="${src}" alt="${t[0]}" title="${t[0]}">`;
+        // store meta for easy read when clicked
+        el.dataset.name = t[0];
+        el.dataset.rarity = t[1] || 'common';
+        strip.appendChild(el);
+      });
+    }
+
+    // add drop to acquired view
+    function addDropToView(name, rarity){
+      const container = viewDrops;
+      const c = document.createElement('div');
+      c.className = 'drop-card';
+      const src = IMAGES[name] || FALLBACK_IMG;
+      c.innerHTML = `<img src="${src}" alt="${name}"><div class="drop-details"><div class="name">${name}</div><div class="rarity">${(rarity||'common').toUpperCase()}</div></div>`;
+      // clicking an acquired item opens stats
+      c.addEventListener('click', ()=> openStats(name,rarity,src));
+      container.prepend(c);
+      // also track drops
+      dropsList.unshift({name,rarity,src});
+      // keep a smaller list in alternate views if desired
+      refreshGalleryViews();
+    }
+
+    function refreshGalleryViews(){
+      // t1
+      viewT1.innerHTML = ''; viewT2.innerHTML = ''; viewAttach.innerHTML = ''; viewDrugs.innerHTML = '';
+      ALL_ITEMS.filter(i=>i[2]==='t1').forEach(([name,rar])=>{
+        const c = document.createElement('div'); c.className='drop-card'; c.style.marginBottom='8px';
+        const src = IMAGES[name] || FALLBACK_IMG;
+        c.innerHTML = `<img src="${src}" alt="${name}"><div class="drop-details"><div class="name">${name}</div><div class="rarity">${rar.toUpperCase()}</div></div>`;
+        c.addEventListener('click', ()=> openStats(name,rar,src));
+        viewT1.appendChild(c);
+      });
+      ALL_ITEMS.filter(i=>i[2]==='t2').forEach(([name,rar])=>{
+        const c = document.createElement('div'); c.className='drop-card'; c.style.marginBottom='8px';
+        const src = IMAGES[name] || FALLBACK_IMG;
+        c.innerHTML = `<img src="${src}" alt="${name}"><div class="drop-details"><div class="name">${name}</div><div class="rarity">${rar.toUpperCase()}</div></div>`;
+        c.addEventListener('click', ()=> openStats(name,rar,src));
+        viewT2.appendChild(c);
+      });
+      ATTACHMENTS.forEach(([name,rar])=>{
+        const c = document.createElement('div'); c.className='drop-card'; c.style.marginBottom='8px';
+        const src = IMAGES[name] || FALLBACK_IMG;
+        c.innerHTML = `<img src="${src}" alt="${name}"><div class="drop-details"><div class="name">${name}</div><div class="rarity">${rar.toUpperCase()}</div></div>`;
+        c.addEventListener('click', ()=> openStats(name,rar,src));
+        viewAttach.appendChild(c);
+      });
+      DRUGS.forEach(([name,rar])=>{
+        const c = document.createElement('div'); c.className='drop-card'; c.style.marginBottom='8px';
+        const src = IMAGES[name] || FALLBACK_IMG;
+        c.innerHTML = `<img src="${src}" alt="${name}"><div class="drop-details"><div class="name">${name}</div><div class="rarity">${rar.toUpperCase()}</div></div>`;
+        c.addEventListener('click', ()=> openStats(name,rar,src));
+        viewDrugs.appendChild(c);
+      });
+    }
+
+    // find element roughly at center left (winner)
+    function tileAtCenter(){
+      const rect = strip.getBoundingClientRect();
+      const centerX = rect.left + rect.width * 0.18; // visually like the target site
+      const children = Array.from(strip.children);
+      for(const c of children){
+        const r = c.getBoundingClientRect();
+        if(r.left <= centerX && r.right >= centerX) return c;
+      }
+      // fallback - return random one
+      return children[Math.floor(Math.random()*children.length)];
+    }
+
+    // animate "spin" by moving elements across via re-append
+    async function spin(){
+      spinBtn.disabled = true;
+      const tier = tierSelect.value;
+      renderStrip(tier);
+      await tick(50); // let DOM paint
+      // number of element shifts
+      const shifts = 40 + Math.floor(Math.random()*32);
+      const delayStart = 30;
+      for(let i=0;i<shifts;i++){
+        // rotate by moving first element to end; small delay increases for deceleration
+        strip.appendChild(strip.firstElementChild);
+        await tick(delayStart + Math.pow(i/shifts,2) * 400);
+      }
+      // pick winner
+      const winnerEl = tileAtCenter();
+      if(winnerEl){
+        const winnerName = winnerEl.dataset.name || winnerEl.querySelector('img')?.alt || 'Unknown';
+        const winnerRarity = winnerEl.dataset.rarity || 'common';
+        addDropToView(winnerName,winnerRarity);
+        // open a small preview
+        openStats(winnerName,winnerRarity, IMAGES[winnerName] || FALLBACK_IMG);
+      }
+      setTimeout(()=> spinBtn.disabled = false, 200);
+    }
+
+    function tick(ms){ return new Promise(res => setTimeout(res, ms)); }
+
+    // open stats (modal)
+    function openStats(name, rarity, src){
+      statsTitle.textContent = name;
+      statsRarity.textContent = (rarity || 'common').toUpperCase();
+      statsImage.src = src || IMAGES[name] || FALLBACK_IMG;
+
+      const s = getStats(name);
+      statDamage.textContent = s.damage || '-';
+      statFire.textContent = s.fire ? s.fire + ' RPM' : '-';
+      statAmmo.textContent = s.ammo || '-';
+      statMag.textContent = `Reg: ${s.magStd || '-'} | Ext: ${s.magExt || '-'}`;
+
+      statsOverlay.classList.add('open');
+      statsOverlay.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeStatsOverlay(){
+      statsOverlay.classList.remove('open');
+      statsOverlay.setAttribute('aria-hidden', 'true');
+    }
+
+    // wire up category buttons and nav
+    catButtons.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        catButtons.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        const cat = btn.dataset.cat || 't1';
+        tierSelect.value = cat;
+        renderStrip(cat);
+      });
+    });
+
+    navLinks.forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        e.preventDefault();
+        navLinks.forEach(x=>x.classList.remove('active'));
+        a.classList.add('active');
+        const v = a.dataset.view;
+        // show/hide views
+        [viewDrops,viewT1,viewT2,viewAttach,viewDrugs].forEach(el => el.style.display = 'none');
+        if(v==='drops') viewDrops.style.display = '';
+        if(v==='t1') viewT1.style.display = '';
+        if(v==='t2') viewT2.style.display = '';
+        if(v==='attach') viewAttach.style.display = '';
+        if(v==='drugs') viewDrugs.style.display = '';
+      });
+    });
+
+    // other handlers
+    spinBtn.addEventListener('click', spin);
+    shuffleBtn.addEventListener('click', ()=> renderStrip(tierSelect.value));
+    tierSelect.addEventListener('change', ()=> renderStrip(tierSelect.value));
+
+    closeStats.addEventListener('click', closeStatsOverlay);
+    statsOverlay.addEventListener('click', (e)=> { if(e.target===statsOverlay) closeStatsOverlay(); });
+
+    // music toggle
+    const musicToggle = document.getElementById('musicToggle');
+    let musicOn = true;
+    musicToggle.addEventListener('click', (e)=>{
+      e.preventDefault();
+      musicOn = !musicOn;
+      musicToggle.innerHTML = (musicOn ? '<i class="fa-solid fa-volume-high"></i> Music: On' : '<i class="fa-solid fa-volume-xmark"></i> Music: Off');
+    });
+
+    // initial render
+    renderStrip('t1');
+    refreshGalleryViews();
+
+    // small helper to open last acquired
+    document.getElementById('openAny').addEventListener('click', ()=>{
+      if(dropsList.length) {
+        const last = dropsList[0];
+        openStats(last.name, last.rarity, last.src);
+      }
+    });
+  </script>
+</body>
+</html>
