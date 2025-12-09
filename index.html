@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Quaker City's Contraband System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{
+    --bg:#0b0b12;
+    --panel:#121421;
+    --accent:#ff6b3b;
+    --accent-2:#ffb03a;
+    --text:#e8e8f2;
+    --muted:#94a3b8;
+    --card-common:#2b2f44;
+    --card-uncommon:#214a2f;
+    --card-rare:#133a5a;
+    --card-epic:#3a2165;
+    --card-legendary:#6b5200;
+    --shadow:0 10px 30px rgba(0,0,0,.45);
+    --slot-w:100px;
+    --slot-h:100px;
+    --reel-gap:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; overflow-x:hidden}
+  body{
+    margin:0;
+    background:radial-gradient(1200px 600px at 10% -10%, rgba(255,140,64,.16), transparent 60%),
+               radial-gradient(1200px 600px at 110% 10%, rgba(255,92,48,.12), transparent 60%), 
+               var(--bg);
+    color:var(--text); 
+    font:500 16px/1.4 "Rajdhani", system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    letter-spacing:.2px; 
+    display:flex; 
+    align-items:flex-start; 
+    justify-content:center; 
+    padding:0px 16px 96px;
+  }
+  
+  .page-bg{ 
+    position:fixed; 
+    inset:0; 
+    z-index:0; 
+    pointer-events:none;
+    background:url('https://i.imgur.com/z17MUhQ.png') center/cover no-repeat fixed;
+    filter: blur(14px) saturate(1.05);
+    opacity:.22;
+    transform: scale(1.06);
+  }
+  
+  .wrap{
+    max-width:1280px; 
+    width:100%; 
+    margin:0 auto;
+    position:relative;
+    z-index:1;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: linear-gradient(180deg, rgba(10,10,16,0.95), rgba(10,10,16,0.7));
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(8px) saturate(1.2);
+    margin: -16px -16px 0 -16px;
+    padding: 0 16px;
+  }
+
+  .top-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand {
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.02em;
+    margin: 0;
+  }
+
+  .brand .accent {
+    color: var(--accent-2);
+    text-shadow: 0 0 10px rgba(255,176,58,0.40);
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .nav-link {
+    color: #d8dee9;
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+    cursor: pointer;
+  }
+
+  .nav-link:hover {
+    color: var(--accent-2);
+    text-shadow: 0 0 8px rgba(255,176,58,0.40);
+  }
+
+  .nav-link.active {
+    color: var(--accent-2);
+  }
+
+  .purchase-btn {
+    background: linear-gradient(180deg, rgba(255,107,59,0.28), rgba(255,176,58,0.08));
+    color: #fff;
+    border: 1px solid rgba(255,176,58,0.45);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .purchase-btn:hover {
+    box-shadow: 0 0 0 3px rgba(255,176,58,0.18);
+  }
+
+  .card{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)),
+      rgba(12,14,22,.55);
+    backdrop-filter: blur(8px) saturate(1.05);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px; 
+    box-shadow:var(--shadow); 
+    padding:18px;
+    position: relative;
+  }
+
+  .row{
+    display:flex; 
+    gap:12px; 
+    flex-wrap:wrap; 
+    align-items:center;
+  }
+
+  .label{
+    color:var(--muted); 
+    font-size:14px; 
+    margin-right:8px;
+  }
+
+  select, button{
+    background:#181a2a; 
+    color:var(--text); 
+    border:1px solid rgba(255,255,255,.14);
+    padding:10px 12px; 
+    border-radius:10px; 
+    outline:none;
+  }
+
+  button{
+    background: linear-gradient(180deg, rgba(255,176,58,.30), rgba(255,107,59,.08));
+    border:1px solid rgba(255,176,58,.40);
+    padding:10px 16px; 
+    font-weight:700; 
+    letter-spacing:.03em; 
+    cursor:pointer;
+    transition:transform .08s ease, box-shadow .2s ease;
+  }
+
+  button:hover{
+    box-shadow:0 0 0 3px rgba(255,176,58,.18);
+  }
+
+  button:active{
+    transform:translateY(1px);
+  }
+
+  .icon-btn{
+    width:38px; 
+    height:38px; 
+    padding:0; 
+    margin-right:8px;
+    display:inline-flex; 
+    align-items:center; 
+    justify-content:center;
+    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+    border:1px solid rgba(255,255,255,.22);
+    border-radius:10px; 
+    cursor:pointer;
+    transition: box-shadow 0.2s ease;
+  }
+
+  .icon-btn i{ 
+    font-size:18px; 
+    opacity:.9;
+  }
+
+  .icon-btn:hover{ 
+    box-shadow:0 0 0 3px rgba(255,255,255,.12);
+  }
+
+  .reel{
+    position:relative; 
+    overflow:hidden; 
+    border-radius:12px; 
+    border:1px solid rgba(255,255,255,.06);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0)),
+      rgba(10,12,20,.45);
+    backdrop-filter: blur(6px) saturate(1.02);
+    margin-top:12px; 
+    width:100%; 
+    padding:12px;
+  }
+
+  .strip{
+    display:flex; 
+    gap:var(--reel-gap); 
+    padding:0; 
+    transition:transform .25s ease; 
+    will-change:transform;
+  }
+
+  .slot{
+    width:var(--slot-w);
+    height:var(--slot-h);
+    flex: 0 0 var(--slot-w);
+    min-width: var(--slot-w);
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.65);
+    box-shadow:
+      inset 0 -30px 60px rgba(0,0,0,.25),
+      0 0 0 1px rgba(255,255,255,.15);
+  }
+
+  .slot.common{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.04) 70%, rgba(255,255,255,.08) 100%),
+      linear-gradient(180deg, rgba(43,47,68,0) 55%, rgba(161,161,161,.85) 100%), 
+      rgba(15,17,32,.60);
+  }
+
+  .slot.uncommon{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.08) 14%, rgba(15,17,32,0) 50%),
+      linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(33,74,47,.85) 100%),
+      rgba(15,17,32,.60);
+  }
+
+  .slot.rare{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.08) 14%, rgba(15,17,32,0) 50%),
+      linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(19,58,90,.85) 100%),
+      rgba(15,17,32,.60);
+  }
+
+  .slot.epic{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.08) 14%, rgba(15,17,32,0) 50%),
+      linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(58,33,101,.85) 100%),
+      rgba(15,17,32,.60);
+  }
+
+  .slot.legendary{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.08) 14%, rgba(15,17,32,0) 50%),
+      linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(107,82,0,.88) 100%),
+      rgba(15,17,32,.60);
+  }
+
+  .slot .weapon-img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:.95;
+  }
+
+  .slot .title{
+    position:absolute;
+    bottom:8px;
+    left:0;
+    right:0;
+    text-align:center;
+    font-size:11px;
+    font-weight:700;
+    color:#fff;
+    text-shadow:0 2px 4px rgba(0,0,0,.5);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    padding:0 4px;
+  }
+
+  .cut{
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    width:2px;
+    transform:translateX(-50%);
+    background:rgba(255,176,58,.3);
+    pointer-events:none;
+    z-index:10;
+    box-shadow:0 0 20px rgba(255,176,58,.4);
+  }
+
+  .hero{
+    margin-bottom:24px;
+  }
+
+  .hero-content{
+    display:flex;
+    gap:20px;
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+
+  .hero-left{
+    flex:1;
+    min-width:300px;
+  }
+
+  .hero-right{
+    flex:1;
+    min-width:300px;
+  }
+
+  .hero h1{
+    margin:0 0 12px 0;
+    font-size:32px;
+    font-weight:800;
+  }
+
+  .hero p{
+    color:var(--muted);
+    margin:0 0 16px 0;
+    line-height:1.6;
+  }
+
+  .tier-controls{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+
+  .drops-section{
+    margin-top:24px;
+  }
+
+  .drops-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+  }
+
+  .drops-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(100px, 1fr));
+    gap:12px;
+  }
+
+  .drop-card{
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.10);
+    padding:8px;
+    text-align:center;
+    cursor:pointer;
+    transition:all 0.2s ease;
+  }
+
+  .drop-card.common{
+    background:linear-gradient(180deg, rgba(43,47,68,.6), rgba(43,47,68,.3));
+    border-color:rgba(161,161,161,.3);
+  }
+
+  .drop-card.uncommon{
+    background:linear-gradient(180deg, rgba(33,74,47,.6), rgba(33,74,47,.3));
+    border-color:rgba(100,200,100,.3);
+  }
+
+  .drop-card.rare{
+    background:linear-gradient(180deg, rgba(19,58,90,.6), rgba(19,58,90,.3));
+    border-color:rgba(100,150,255,.3);
+  }
+
+  .drop-card.epic{
+    background:linear-gradient(180deg, rgba(58,33,101,.6), rgba(58,33,101,.3));
+    border-color:rgba(180,100,255,.3);
+  }
+
+  .drop-card.legendary{
+    background:linear-gradient(180deg, rgba(107,82,0,.6), rgba(107,82,0,.3));
+    border-color:rgba(255,200,0,.3);
+  }
+
+  .drop-card:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 15px rgba(255,176,58,.25);
+  }
+
+  .drop-img{
+    width:100%;
+    height:70px;
+    object-fit:cover;
+    border-radius:8px;
+    margin-bottom:6px;
+  }
+
+  .drop-title{
+    font-size:11px;
+    font-weight:700;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .stage{
+    display:none;
+  }
+
+  .stage.active{
+    display:block;
+  }
+
+  .gallery-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+    gap:12px;
+    padding:20px;
+  }
+
+  .gallery-card{
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.10);
+    padding:8px;
+    text-align:center;
+    transition:all 0.2s ease;
+    cursor:pointer;
+  }
+
+  .gallery-card.common{
+    background:linear-gradient(180deg, rgba(43,47,68,.6), rgba(43,47,68,.3));
+    border-color:rgba(161,161,161,.3);
+  }
+
+  .gallery-card.uncommon{
+    background:linear-gradient(180deg, rgba(33,74,47,.6), rgba(33,74,47,.3));
+    border-color:rgba(100,200,100,.3);
+  }
+
+  .gallery-card.rare{
+    background:linear-gradient(180deg, rgba(19,58,90,.6), rgba(19,58,90,.3));
+    border-color:rgba(100,150,255,.3);
+  }
+
+  .gallery-card.epic{
+    background:linear-gradient(180deg, rgba(58,33,101,.6), rgba(58,33,101,.3));
+    border-color:rgba(180,100,255,.3);
+  }
+
+  .gallery-card.legendary{
+    background:linear-gradient(180deg, rgba(107,82,0,.6), rgba(107,82,0,.3));
+    border-color:rgba(255,200,0,.3);
+  }
+
+  .gallery-card:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 15px rgba(255,176,58,.25);
+  }
+
+  .gallery-card img{
+    width:100%;
+    height:100px;
+    object-fit:cover;
+    border-radius:8px;
+    margin-bottom:6px;
+  }
+
+  .gallery-card .name{
+    font-size:12px;
+    font-weight:700;
+    word-break:break-word;
+  }
+
+  .stats-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.8);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:200;
+    backdrop-filter:blur(4px);
+  }
+
+  .stats-overlay.open{
+    display:flex;
+  }
+
+  .stats-panel{
+    background:var(--panel);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:16px;
+    padding:24px;
+    max-width:500px;
+    width:90%;
+    max-height:80vh;
+    overflow-y:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+  }
+
+  .stats-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:20px;
+  }
+
+  .stats-title{
+    font-size:24px;
+    font-weight:800;
+  }
+
+  .stats-rarity{
+    font-size:12px;
+    font-weight:700;
+    padding:4px 12px;
+    border-radius:8px;
+    background:rgba(255,176,58,.2);
+    color:var(--accent-2);
+  }
+
+  .close-btn{
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:24px;
+    cursor:pointer;
+    padding:0;
+    width:32px;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:color 0.2s ease;
+  }
+
+  .close-btn:hover{
+    color:var(--accent-2);
+  }
+
+  .stats-image{
+    width:100%;
+    height:200px;
+    object-fit:cover;
+    border-radius:12px;
+    margin-bottom:20px;
+  }
+
+  .stat-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+
+  .stat-row:last-child{
+    border-bottom:none;
+  }
+
+  .stat-label{
+    color:var(--muted);
+    font-size:14px;
+  }
+
+  .stat-value{
+    font-size:14px;
+    font-weight:700;
+    color:var(--accent-2);
+  }
+
+  .stat-value.gold{
+    color:#ffd700;
+  }
+
+  .stat-value.green{
+    color:#4ade80;
+  }
+
+  .stat-value.red{
+    color:#ff6b6b;
+  }
+
+  .watermark{
+    position:fixed;
+    bottom:12px;
+    left:12px;
+    z-index:50;
+  }
+
+  .watermark .inner{
+    font-size:12px;
+  }
+
+  .watermark a{
+    color:var(--accent-2);
+    text-decoration:none;
+    transition:color 0.2s ease;
+  }
+
+  .watermark a:hover{
+    color:#fff;
+  }
+
+  .hero-nav{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
+  .hero-link{
+    padding:8px 12px;
+    border-radius:8px;
+    background:rgba(255,176,58,.1);
+    border:1px solid rgba(255,176,58,.3);
+    color:#d8dee9;
+    text-decoration:none;
+    cursor:pointer;
+    transition:all 0.2s ease;
+    font-size:13px;
+  }
+
+  .hero-link:hover{
+    background:rgba(255,176,58,.2);
+    color:var(--accent-2);
+  }
+
+  .hero-link.active{
+    background:rgba(255,176,58,.3);
+    color:var(--accent-2);
+  }
+
+  @media(max-width:768px){
+    .hero-content{
+      flex-direction:column;
+    }
+
+    .hero h1{
+      font-size:24px;
+    }
+
+    .gallery-grid{
+      grid-template-columns:repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .nav{
+      flex-direction:column;
+      gap:8px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="page-bg"></div>
+  
+  <div class="topbar">
+    <div class="top-inner">
+      <h1 class="brand">Quaker <span class="accent">City</span></h1>
+      <div class="nav">
+        <a href="#" class="nav-link" id="musicToggle">
+          <i class="fa-solid fa-volume-high icon"></i> Music: On
+        </a>
+        <a href="#" class="nav-link">Discord</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-content">
+        <div class="hero-left card">
+          <h1>Contraband System</h1>
+          <p>Spin the wheel to get weapons, attachments, and drugs. Test your luck and build your collection!</p>
+          
+          <div class="tier-controls">
+            <label class="label">Tier:</label>
+            <select id="tierSelect">
+              <option value="t1">Tier 1</option>
+              <option value="t2">Tier 2</option>
+              <option value="attach">Attachments</option>
+              <option value="drugs">Drugs</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <button id="shuffleBtn" class="icon-btn" title="Shuffle">
+              <i class="fa-solid fa-shuffle"></i>
+            </button>
+            <button id="spinBtn">Spin the Wheel</button>
+          </div>
+        </div>
+
+        <div class="hero-right card">
+          <div class="hero-nav">
+            <a href="#" class="hero-link active" id="navDrops">Drops</a>
+            <a href="#" class="hero-link" id="navT1">Tier 1</a>
+            <a href="#" class="hero-link" id="navT2">Tier 2</a>
+            <a href="#" class="hero-link" id="navAttach">Attachments</a>
+            <a href="#" class="hero-link" id="navDrugs">Drugs</a>
+          </div>
+          <div id="viewDrops" class="stage active">
+            <div id="drops" class="drops-grid"></div>
+          </div>
+          <div id="viewT1" class="stage">
+            <div id="t1GridStage" class="gallery-grid"></div>
+          </div>
+          <div id="viewT2" class="stage">
+            <div id="t2GridStage" class="gallery-grid"></div>
+          </div>
+          <div id="viewAttach" class="stage">
+            <div id="attachGridStage" class="gallery-grid"></div>
+          </div>
+          <div id="viewDrugs" class="stage">
+            <div id="drugsGridStage" class="gallery-grid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reel" id="reel">
+      <div class="cut"></div>
+      <div class="strip" id="strip"></div>
+    </div>
+  </div>
+
+  <div class="stats-overlay" id="statsOverlay" aria-hidden="true">
+    <div class="stats-panel">
+      <div class="stats-header">
+        <div>
+          <div class="stats-title" id="statsTitle">Item Name</div>
+          <span class="stats-rarity" id="statsRarity">COMMON</span>
+        </div>
+        <button class="close-btn" id="closeStats">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <img class="stats-image" id="statsImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23333' width='100' height='100'/%3E%3C/svg%3E" alt="">
+      <div id="statBadges"></div>
+      <div class="stat-row">
+        <span class="stat-label">Damage</span>
+        <span class="stat-value" id="statDamage">-</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Fire Rate</span>
+        <span class="stat-value" id="statFire">-</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Ammo</span>
+        <span class="stat-value" id="statAmmo">-</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Magazine</span>
+        <span class="stat-value" id="statMag">-</span>
+      </div>
+      <div class="stat-row" id="statPriceRow" style="display:none;">
+        <span class="stat-label">Price</span>
+        <span class="stat-value" id="statPrice">-</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="watermark">
+    <span class="inner"><a href="https://github.com/Routeq/Quaker-City" target="_blank" rel="noopener noreferrer">Quaker City System</a></span>
+  </div>
+
+  <audio id="bgmAudio" preload="auto"></audio>
+
+  <script>
+    // Weapon images and stats data
+    const IMAGES = {
+      'Ghost Glock 17': 'https://via.placeholder.com/100?text=Glock+17',
+      'Glock 19': 'https://via.placeholder.com/100?text=Glock+19',
+      'Glock 20': 'https://via.placeholder.com/100?text=Glock+20',
+      'Beretta M9': 'https://via.placeholder.com/100?text=Beretta',
+      'CZ 75': 'https://via.placeholder.com/100?text=CZ+75',
+      'Hi-Point': 'https://via.placeholder.com/100?text=Hi-Point',
+      'Tec-9': 'https://via.placeholder.com/100?text=Tec-9',
+      'MAC-10': 'https://via.placeholder.com/100?text=MAC-10',
+      'Micro UZI': 'https://via.placeholder.com/100?text=Micro+UZI',
+      'Skorpion': 'https://via.placeholder.com/100?text=Skorpion',
+      'MP5': 'https://via.placeholder.com/100?text=MP5',
+      'UMP45': 'https://via.placeholder.com/100?text=UMP45',
+      'P90': 'https://via.placeholder.com/100?text=P90',
+      'AK-47': 'https://via.placeholder.com/100?text=AK-47',
+      'AR-15': 'https://via.placeholder.com/100?text=AR-15',
+      'M4A1': 'https://via.placeholder.com/100?text=M4A1',
+      'Kriss Vector': 'https://via.placeholder.com/100?text=Kriss+Vector',
+      'ACR': 'https://via.placeholder.com/100?text=ACR',
+    };
+
+    const FALLBACK_IMG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23333" width="100" height="100"/%3E%3Ctext x="50" y="50" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="12"%3ENo Image%3C/text%3E%3C/svg%3E';
+
+    const ALL_ITEMS = [
+      ['Ghost Glock 17', 'common', 't1'],
+      ['Glock 19', 'common', 't1'],
+      ['Glock 20', 'common', 't1'],
+      ['Hi-Point', 'common', 't1'],
+      ['Beretta M9', 'uncommon', 't1'],
+      ['CZ 75', 'uncommon', 't1'],
+      ['Tec-9', 'uncommon', 't1'],
+      ['MAC-10', 'uncommon', 't1'],
+      ['Micro UZI', 'rare', 't1'],
+      ['Skorpion', 'rare', 't1'],
+      ['MP5', 'rare', 't1'],
+      ['UMP45', 'rare', 't1'],
+      ['AK-47', 'epic', 't2'],
+      ['AR-15', 'epic', 't2'],
+      ['M4A1', 'epic', 't2'],
+      ['Kriss Vector', 'epic', 't2'],
+      ['ACR', 'legendary', 't2'],
+    ];
+
+    const DRUGS = [
+      ['RP 10', 'common', 'rp_10'],
+      ['MBox 10', 'common', 'mbox_10'],
+      ['V 230', 'common', 'v_230'],
+      ['K56', 'common', 'k_56'],
+      ['Line of Green', 'uncommon', 'line_green'],
+      ['K8', 'uncommon', 'k8_greens'],
+      ['V 48', 'uncommon', 'v_48'],
+      ['Green Pint', 'uncommon', 'pint_green'],
+      ['RP 20', 'rare', 'rp_20'],
+      ['Line of Wockhardt', 'rare', 'line_wock'],
+      ['Line of Pai', 'rare', 'line_pai'],
+      ['MBox 30', 'epic', 'mbox_30'],
+      ['RP 30', 'epic', 'rp_30'],
+      ['Superman Pill', 'epic', 'superman'],
+      ['Quagen Pint', 'epic', 'quagen_pint'],
+      ['Wockhardt Pint', 'epic', 'wock_pint'],
+    ];
+
+    const ATTACHMENTS = [
+      ['Flashlight', 'uncommon', 'attach_light'],
+      ['Extended Magazine', 'rare', 'mag_ext'],
+      ['Drum Magazine', 'epic', 'drum_mag'],
+      ['Auto Sear', 'legendary', 'autosear'],
+      ['Switch', 'legendary', 'switch'],
+    ];
+
+    const WEAPON_STATS = {
+      'Ghost Glock 17': { damage: 28, fire: 750, ammo: '9mm', magStd: 15, magExt: 33 },
+      'Glock 19': { damage: 28, fire: 750, ammo: '9mm', magStd: 15, magExt: 33 },
+      'Glock 20': { damage: 35, fire: 600, ammo: '.45 ACP', magStd: 10, magExt: 21 },
+      'Beretta M9': { damage: 28, fire: 750, ammo: '9mm', magStd: 15, magExt: 30 },
+      'CZ 75': { damage: 30, fire: 750, ammo: '9mm', magStd: 16, magExt: 32 },
+      'Hi-Point': { damage: 32, fire: 400, ammo: '.45 ACP', magStd: 8, magExt: 16 },
+      'Tec-9': { damage: 25, fire: 1000, ammo: '9mm', magStd: 20, magExt: 40 },
+      'MAC-10': { damage: 27, fire: 1090, ammo: '.45 ACP', magStd: 30, magExt: 50 },
+      'Micro UZI': { damage: 25, fire: 1200, ammo: '9mm', magStd: 25, magExt: 50 },
+      'Skorpion': { damage: 23, fire: 1100, ammo: '.32 ACP', magStd: 20, magExt: 40 },
+      'MP5': { damage: 26, fire: 800, ammo: '9mm', magStd: 30, magExt: 60 },
+      'UMP45': { damage: 30, fire: 600, ammo: '.45 ACP', magStd: 25, magExt: 50 },
+      'P90': { damage: 22, fire: 900, ammo: '5.7x28', magStd: 50, magExt: 100 },
+      'AK-47': { damage: 36, fire: 600, ammo: '7.62x39', magStd: 30, magExt: 75 },
+      'AR-15': { damage: 38, fire: 700, ammo: '5.56x45', magStd: 30, magExt: 60 },
+      'M4A1': { damage: 36, fire: 800, ammo: '5.56x45', magStd: 30, magExt: 60 },
+      'Kriss Vector': { damage: 34, fire: 1200, ammo: '.45 ACP', magStd: 25, magExt: 50 },
+      'ACR': { damage: 40, fire: 750, ammo: '5.56x45', magStd: 30, magExt: 60 },
+    };
+
+    const ATTACH_INFO = {
+      'Flashlight': { type: 'Light', effect: 'Illuminates targets', compat: 'All', capacity: '-', notes: '-' },
+      'Extended Magazine': { type: 'Magazine', effect: '-', compat: 'Pistols', capacity: '+10', notes: 'Standard mag' },
+      'Drum Magazine': { type: 'Magazine', effect: '-', compat: 'Rifles', capacity: '+30', notes: 'Extended ammo' },
+      'Auto Sear': { type: 'Mod', effect: 'Enables auto fire', compat: 'Certain rifles', capacity: '-', notes: 'Illegal' },
+      'Switch': { type: 'Mod', effect: 'Enables auto fire', compat: 'Pistols', capacity: '-', notes: 'Illegal' },
+    };
+
+    const DRUG_INFO = {
+      'RP 10': { type: 'Pill', effect: 'Common', form: 'Single', notes: 'Entry level' },
+      'MBox 10': { type: 'Pill', effect: 'Common', form: 'Single', notes: 'Entry level' },
+      'V 230': { type: 'Pill', effect: 'Common', form: 'Single', notes: 'Entry level' },
+      'K56': { type: 'Pill', effect: 'Common', form: 'Single', notes: 'Entry level' },
+      'Line of Green': { type: 'Powder', effect: 'Uncommon', form: 'Line', notes: 'Mid-tier' },
+      'K8': { type: 'Pill', effect: 'Uncommon', form: 'Single', notes: 'Mid-tier' },
+      'V 48': { type: 'Pill', effect: 'Uncommon', form: 'Single', notes: 'Mid-tier' },
+      'Green Pint': { type: 'Syrup', effect: 'Uncommon', form: 'Pint', notes: 'Mid-tier' },
+      'RP 20': { type: 'Pill', effect: 'Rare', form: 'Single', notes: 'High-tier' },
+      'Line of Wockhardt': { type: 'Syrup', effect: 'Rare', form: 'Line', notes: 'High-tier' },
+      'Line of Pai': { type: 'Syrup', effect: 'Rare', form: 'Line', notes: 'High-tier' },
+      'MBox 30': { type: 'Pill', effect: 'Epic', form: 'Single', notes: 'Premium' },
+      'RP 30': { type: 'Pill', effect: 'Epic', form: 'Single', notes: 'Premium' },
+      'Superman Pill': { type: 'Pill', effect: 'Epic', form: 'Single', notes: 'Premium' },
+      'Quagen Pint': { type: 'Syrup', effect: 'Epic', form: 'Pint', notes: 'Premium' },
+      'Wockhardt Pint': { type: 'Syrup', effect: 'Epic', form: 'Pint', notes: 'Premium' },
+    };
+
+    function getStats(name) {
+      return WEAPON_STATS[name] || { damage: 0, fire: 0, ammo: '-', magStd: 0, magExt: 0 };
+    }
+
+    // DOM Elements
+    const strip = document.getElementById('strip');
+    const tierSelect = document.getElementById('tierSelect');
+    const drops = document.getElementById('drops');
+    const spinBtn = document.getElementById('spinBtn');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const musicToggle = document.getElementById('musicToggle');
+
+    const navT1 = document.getElementById('navT1');
+    const navT2 = document.getElementById('navT2');
+    const navAttach = document.getElementById('navAttach');
+    const navDrugs = document.getElementById('navDrugs');
+    const navDrops = document.getElementById('navDrops');
+
+    const viewDrops = document.getElementById('viewDrops');
+    const viewT1 = document.getElementById('viewT1');
+    const viewT2 = document.getElementById('viewT2');
+    const viewAttach = document.getElementById('viewAttach');
+    const viewDrugs = document.getElementById('viewDrugs');
+
+    const t1GridStage = document.getElementById('t1GridStage');
+    const t2GridStage = document.getElementById('t2GridStage');
+    const attachGridStage = document.getElementById('attachGridStage');
+    const drugsGridStage = document.getElementById('drugsGridStage');
+
+    const statsOverlay = document.getElementById('statsOverlay');
+    const closeStats = document.getElementById('closeStats');
+    const statsTitle = document.getElementById('statsTitle');
+    const statsRarity = document.getElementById('statsRarity');
+    const statsImage = document.getElementById('statsImage');
+
+    function slotEl(item) {
+      const [name, rarity] = item;
+      const el = document.createElement('div');
+      el.className = `slot ${rarity}`;
+      el.dataset.name = name;
+      el.dataset.rarity = rarity;
+      const src = IMAGES[name] || FALLBACK_IMG;
+      el.innerHTML = `
+        <img class="weapon-img" src="${src}" alt="${name}">
+        <div class="title" title="${name}">${name}</div>
+      `;
+      return el;
+    }
+
+    function renderStrip(tier) {
+      strip.innerHTML = "";
+      let pool = [];
+
+      if (tier === 'attach') {
+        pool = ATTACHMENTS.map(a => [a[0], a[1] || 'common']);
+      } else if (tier === 'drugs') {
+        pool = DRUGS.map(d => [d[0], d[1] || 'common']);
+      } else {
+        pool = ALL_ITEMS.filter(i => i[2] === tier);
+      }
+
+      let items = shuffle([...pool]);
+      const reelW = document.getElementById('reel').getBoundingClientRect().width || 800;
+      const step = Math.max(1, Math.round(stepWidth()));
+      const visible = Math.max(6, Math.ceil(reelW / step));
+      const minTiles = Math.max(items.length, visible * 3);
+      const cap = 64;
+
+      let out = [];
+      const need = Math.min(minTiles, cap);
+      for (let i = 0; i < need; i++) {
+        out.push(randomChoice(items));
+      }
+
+      out.forEach(it => strip.appendChild(slotEl(it)));
+    }
+
+    function randomChoice(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function addDrop(name, rarity) {
+      const c = document.createElement('div');
+      c.className = `drop-card ${rarity}`;
+      const src = IMAGES[name] || FALLBACK_IMG;
+      c.innerHTML = `
+        <img class="drop-img" src="${src}" alt="${name}">
+        <div class="drop-title">${name}</div>
+      `;
+      drops.prepend(c);
+    }
+
+    function stepWidth() {
+      const a = strip.children[0];
+      const b = strip.children[1];
+      if (a && b) {
+        const ra = a.getBoundingClientRect();
+        const rb = b.getBoundingClientRect();
+        const step = rb.left - ra.left;
+        if (isFinite(step) && step > 0) return step;
+      }
+      return 120;
+    }
+
+    function tileAtCutLeft() {
+      const cut = document.querySelector('.cut').getBoundingClientRect();
+      const cutX = (cut.left + cut.right) / 2 - 3;
+      const children = Array.from(strip.children);
+      if (children.length === 0) return null;
+      let chosen = children[0];
+      for (const child of children) {
+        const r = child.getBoundingClientRect();
+        if (r.left <= cutX) chosen = child;
+        else break;
+      }
+      return chosen;
+    }
+
+    function currentTranslateX(el) {
+      const t = getComputedStyle(el).transform;
+      if (!t || t === 'none') return 0;
+      const m = t.match(/matrix\(([^)]+)\)/);
+      if (!m) return 0;
+      const parts = m[1].split(',');
+      const tx = parseFloat(parts[4]);
+      return isNaN(tx) ? 0 : tx;
+    }
+
+    async function waitForImages() {
+      const imgs = Array.from(strip.querySelectorAll('img'));
+      const pending = imgs.filter(img => !img.complete);
+      if (pending.length === 0) return Promise.resolve();
+      return Promise.all(
+        pending.map(img => new Promise(res => {
+          img.addEventListener('load', res, { once: true });
+          img.addEventListener('error', res, { once: true });
+        }))
+      );
+    }
+
+    function openStats(name, rarity, src) {
+      if (!document.getElementById('statsOverlay')) return;
+      document.getElementById('statsTitle').textContent = name;
+      document.getElementById('statsRarity').textContent = (rarity || 'common').toUpperCase();
+      const img = document.getElementById('statsImage');
+      img.src = src || (IMAGES[name] || FALLBACK_IMG);
+      img.alt = name;
+
+      const s = getStats(name);
+      document.getElementById('statDamage').textContent = String(s.damage);
+      document.getElementById('statDamage').className = 'stat-value gold';
+      document.getElementById('statFire').textContent = `${s.fire} RPM`;
+      document.getElementById('statFire').className = 'stat-value green';
+      document.getElementById('statAmmo').textContent = s.ammo;
+      document.getElementById('statMag').textContent = `Reg: ${s.magStd} | Ext: ${s.magExt}`;
+
+      statsOverlay.classList.add('open');
+      statsOverlay.removeAttribute('aria-hidden');
+      document.body.classList.add('modal-open');
+    }
+
+    function closeStatsOverlay() {
+      statsOverlay.classList.remove('open');
+      statsOverlay.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+    }
+
+    closeStats.addEventListener('click', closeStatsOverlay);
+    statsOverlay.addEventListener('click', (e) => {
+      if (e.target === statsOverlay) closeStatsOverlay();
+    });
+
+    async function spin() {
+      spinBtn.disabled = true;
+      const tier = tierSelect.value;
+      renderStrip(tier);
+
+      let offset = 0;
+      const step = Math.round(stepWidth());
+
+      await new Promise((resolve) => {
+        const prevTransition = strip.style.transition;
+        strip.style.transition = 'none';
+
+        const slotsToTravel = 55 + Math.floor(Math.random() * 15);
+        const totalDistance = slotsToTravel * step;
+        const duration = 1800;
+        const easeOutQuint = t => 1 - Math.pow(1 - t, 5);
+
+        let start = null;
+        let movedSteps = 0;
+
+        function frame(ts) {
+          if (start === null) start = ts;
+          const p = Math.min((ts - start) / duration, 1);
+          const travelled = totalDistance * easeOutQuint(p);
+
+          const shouldSteps = Math.floor((travelled - 0.01) / step);
+
+          while (movedSteps < shouldSteps) {
+            strip.appendChild(strip.firstElementChild);
+            movedSteps++;
+          }
+
+          const remainder = travelled - movedSteps * step;
+          offset = -remainder;
+          strip.style.transform = `translateX(${offset}px)`;
+
+          if (p < 1) requestAnimationFrame(frame);
+          else {
+            strip.style.transition = prevTransition;
+            resolve();
+          }
+        }
+
+        requestAnimationFrame(frame);
+      });
+
+      await waitForImages();
+      const winnerEl = tileAtCutLeft();
+      if (winnerEl) {
+        const winnerName = winnerEl.dataset.name;
+        const winnerRarity = winnerEl.dataset.rarity || 'common';
+        addDrop(winnerName, winnerRarity);
+      }
+
+      setTimeout(() => {
+        spinBtn.disabled = false;
+      }, 120);
+    }
+
+    function showView(which) {
+      const map = { drops: viewDrops, t1: viewT1, t2: viewT2, attach: viewAttach, drugs: viewDrugs };
+      Object.values(map).forEach(v => {
+        if (v) v.classList.remove('active');
+      });
+      const el = map[which];
+      if (!el) return;
+      el.classList.add('active');
+
+      const linkMap = { drops: navDrops, t1: navT1, t2: navT2, attach: navAttach, drugs: navDrugs };
+      document.querySelectorAll(".hero-link").forEach(a => a.classList.remove("active"));
+      if (linkMap[which]) linkMap[which].classList.add("active");
+
+      if (which === 't1') buildTierStage('t1', t1GridStage);
+      if (which === 't2') buildTierStage('t2', t2GridStage);
+      if (which === 'attach') buildAttachmentsStage();
+      if (which === 'drugs') buildDrugsStage();
+    }
+
+    function buildTierStage(tier, targetEl) {
+      if (!targetEl) return;
+      targetEl.innerHTML = '';
+      const list = ALL_ITEMS.filter(i => i[2] === tier);
+      list.forEach(([name, rarity]) => {
+        const card = document.createElement('div');
+        card.className = `gallery-card ${rarity} clickable`;
+        const src = IMAGES[name] || FALLBACK_IMG;
+        card.innerHTML = `<img src="${src}" alt="${name}"><div class="name">${name}</div>`;
+        card.setAttribute('tabindex', '0');
+        card.addEventListener('click', () => openStats(name, rarity, src));
+        targetEl.appendChild(card);
+      });
+    }
+
+    function buildAttachmentsStage() {
+      if (!attachGridStage) return;
+      attachGridStage.innerHTML = '';
+      const list = ATTACHMENTS;
+      list.forEach(([name, rarity]) => {
+        const card = document.createElement('div');
+        card.className = `gallery-card ${rarity} clickable`;
+        const src = IMAGES[name] || FALLBACK_IMG;
+        card.innerHTML = `<img src="${src}" alt="${name}"><div class="name">${name}</div>`;
+        card.setAttribute('tabindex', '0');
+        card.addEventListener('click', () => openStats(name, rarity, src));
+        attachGridStage.appendChild(card);
+      });
+    }
+
+    function buildDrugsStage() {
+      if (!drugsGridStage) return;
+      drugsGridStage.innerHTML = '';
+      const list = DRUGS;
+      list.forEach(([name, rarity]) => {
+        const card = document.createElement('div');
+        card.className = `gallery-card ${rarity} clickable`;
+        const src = IMAGES[name] || FALLBACK_IMG;
+        card.innerHTML = `<img src="${src}" alt="${name}"><div class="name">${name}</div>`;
+        card.setAttribute('tabindex', '0');
+        card.addEventListener('click', () => openStats(name, rarity, src));
+        drugsGridStage.appendChild(card);
+      });
+    }
+
+    // Initialize
+    renderStrip('t1');
+
+    spinBtn.addEventListener('click', spin);
+    tierSelect.addEventListener('change', () => renderStrip(tierSelect.value));
+    shuffleBtn.addEventListener('click', () => renderStrip(tierSelect.value));
+
+    navT1.addEventListener('click', (e) => { e.preventDefault(); showView('t1'); });
+    navT2.addEventListener('click', (e) => { e.preventDefault(); showView('t2'); });
+    navAttach.addEventListener('click', (e) => { e.preventDefault(); showView('attach'); });
+    navDrugs.addEventListener('click', (e) => { e.preventDefault(); showView('drugs'); });
+    navDrops.addEventListener('click', (e) => { e.preventDefault(); showView('drops'); });
+
+    // Music toggle
+    let musicMuted = false;
+    musicToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      musicMuted = !musicMuted;
+      if (musicMuted) {
+        musicToggle.innerHTML = '<i class="fa-solid fa-volume-xmark icon"></i> Music: Off';
+      } else {
+        musicToggle.innerHTML = '<i class="fa-solid fa-volume-high icon"></i> Music: On';
+      }
+    });
+  </script>
+</body>
+</html>
