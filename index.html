@@ -19,9 +19,9 @@
     --card-epic:#3a2165;
     --card-legendary:#6b5200;
     --shadow:0 10px 30px rgba(0,0,0,.45);
-    --slot-w:100px;
-    --slot-h:100px;
-    --reel-gap:10px;
+    --slot-w:75px;
+    --slot-h:75px;
+    --reel-gap:8px;
   }
   *{box-sizing:border-box}
   html,body{height:100%; overflow-x:hidden}
@@ -31,12 +31,12 @@
                radial-gradient(1200px 600px at 110% 10%, rgba(255,92,48,.12), transparent 60%), 
                var(--bg);
     color:var(--text); 
-    font:500 16px/1.4 "Rajdhani", system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    font:500 15px/1.4 "Rajdhani", system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
     letter-spacing:.2px; 
     display:flex; 
     align-items:flex-start; 
     justify-content:center; 
-    padding:0px 16px 96px;
+    padding:0px 12px 80px;
   }
   
   .page-bg{ 
@@ -209,15 +209,15 @@
   .reel{
     position:relative; 
     overflow:hidden; 
-    border-radius:12px; 
-    border:1px solid rgba(255,255,255,.06);
+    border-radius:10px; 
+    border:1px solid rgba(255,255,255,.08);
     background:
       linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0)),
-      rgba(10,12,20,.45);
+      rgba(10,12,20,.50);
     backdrop-filter: blur(6px) saturate(1.02);
-    margin-top:12px; 
+    margin-top:8px; 
     width:100%; 
-    padding:12px;
+    padding:8px;
   }
 
   .strip{
@@ -317,61 +317,63 @@
   }
 
   .hero{
-    margin-bottom:24px;
+    margin-bottom:16px;
   }
 
   .hero-content{
     display:flex;
-    gap:20px;
+    gap:16px;
     align-items:flex-start;
     flex-wrap:wrap;
   }
 
   .hero-left{
     flex:1;
-    min-width:300px;
+    min-width:280px;
   }
 
   .hero-right{
     flex:1;
-    min-width:300px;
+    min-width:280px;
   }
 
   .hero h1{
-    margin:0 0 12px 0;
-    font-size:32px;
+    margin:0 0 8px 0;
+    font-size:28px;
     font-weight:800;
+    line-height:1.2;
   }
 
   .hero p{
     color:var(--muted);
-    margin:0 0 16px 0;
-    line-height:1.6;
+    margin:0 0 12px 0;
+    line-height:1.5;
+    font-size:14px;
   }
 
   .tier-controls{
     display:flex;
-    gap:12px;
+    gap:10px;
     align-items:center;
-    margin-bottom:16px;
+    margin-bottom:12px;
     flex-wrap:wrap;
   }
 
   .drops-section{
-    margin-top:24px;
+    margin-top:16px;
   }
 
   .drops-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:12px;
+    margin-bottom:10px;
   }
 
   .drops-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(100px, 1fr));
-    gap:12px;
+    grid-template-columns:repeat(auto-fill, minmax(75px, 1fr));
+    gap:10px;
   }
 
   .drop-card{
@@ -439,9 +441,9 @@
 
   .gallery-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
-    gap:12px;
-    padding:20px;
+    grid-template-columns:repeat(auto-fill, minmax(90px, 1fr));
+    gap:10px;
+    padding:14px;
   }
 
   .gallery-card{
