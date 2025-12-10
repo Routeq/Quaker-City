@@ -12,7 +12,7 @@
 
 <style>
 :root{
-  --bg:#071027;
+  --bg:#000000;
   --accent:#dc143c;
   --accent-2:#0047ab;
   --muted:#b0b8c0;
@@ -415,13 +415,81 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
   transform: translateY(0);
 }
 
-/* responsive */
-@media(max-width:980px){ .weapon-popup-body{flex-direction:column; align-items:center;} .weapon-popup-image{width:220px;height:220px;} .title{font-size:34px;} .grid{grid-template-columns: repeat(auto-fill, minmax(150px,1fr));} .victory-items-grid{grid-template-columns: repeat(2, 1fr) !important; gap:15px;} .victory-image-container{width:150px;height:150px;} .victory-header h2{font-size:32px;} .victory-header{flex-direction:column; gap:10px;} .victory-count{font-size:14px;} }
-@media(max-width:640px){ .weapon-popup-inner{width:96%;} .weapon-popup-image{width:180px;height:180px;} .title{font-size:26px} .grid{grid-template-columns: repeat(auto-fill, minmax(120px,1fr));} .victory-card{width:98%; max-width:100%;} .victory-items-grid{grid-template-columns: 1fr !important; gap:12px;} .victory-image-container{width:140px;height:140px;} .victory-header h2{font-size:24px;} .victory-item-name{font-size:16px;} .victory-content{padding:20px 15px;} .victory-item{padding:15px;} }
+/* ========== MOBILE RESPONSIVE ========== */
+@media(max-width:980px){ 
+  .weapon-popup-body{flex-direction:column; align-items:center;} 
+  .weapon-popup-image{width:220px;height:220px;} 
+  .title{font-size:32px;} 
+  .logo{width:70px;height:70px;}
+  .grid{grid-template-columns: repeat(auto-fill, minmax(150px,1fr));} 
+  .victory-items-grid{grid-template-columns: repeat(2, 1fr) !important; gap:15px;} 
+  .victory-image-container{width:150px;height:150px;} 
+  .victory-header h2{font-size:32px;} 
+  .victory-header{flex-direction:column; gap:10px;} 
+  .victory-count{font-size:14px;} 
+  .container{padding:14px;}
+  .topnav .cat{padding:8px 12px; font-size:13px;}
+  .btn{padding:8px 12px; font-size:13px;}
+}
 
- 
+@media(max-width:640px){ 
+  html,body{padding:10px;}
+  .wrap{padding:0;}
+  .container{padding:12px; border-radius:12px;}
+  .header{flex-direction:column; align-items:flex-start;}
+  .header-left{max-width:100%;}
+  .header-right{width:100%; justify-content:flex-end;}
+  .logo{width:60px;height:60px;}
+  .title{font-size:24px;}
+  .subtitle{font-size:13px;}
+  .topnav{gap:6px;}
+  .topnav .cat{padding:7px 10px; font-size:12px;}
+  .subtabs .sub{padding:6px 10px; font-size:12px;}
+  .controls{flex-wrap:wrap; gap:8px;}
+  .controls .left{flex:1; min-width:100%;}
+  .drop-actions{width:100%; justify-content:flex-end;}
+  .btn{padding:7px 10px; font-size:12px;}
+  select{padding:6px 8px; font-size:12px;}
+  .grid{grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap:10px;} 
+  .card{padding:8px; min-height:160px;}
+  .card .name{font-size:13px;}
+  .img-wrap{min-height:90px; padding:4px;}
+  .weapon-popup-inner{width:96%; padding:16px;} 
+  .weapon-popup-image{width:160px;height:160px;} 
+  .weapon-popup-header h2{font-size:18px;}
+  .stat-card{padding:10px;}
+  .stat-title{font-size:11px;}
+  .stat-value{font-size:16px;}
+  .modal{padding:16px; max-height:85vh; overflow-y:auto;}
+  .victory-card{width:98%; max-width:100%; padding:16px;} 
+  .victory-items-grid{grid-template-columns: 1fr !important; gap:10px;} 
+  .victory-image-container{width:120px;height:120px;} 
+  .victory-header h2{font-size:20px;} 
+  .victory-item-name{font-size:14px;} 
+  .victory-content{padding:16px 12px;} 
+  .victory-item{padding:12px;} 
+  .victory-collect-btn{padding:12px; font-size:14px;}
+  #landedGunDisplay{padding:12px; margin-top:12px;}
+  #landedGunDisplay img{max-width:80px; max-height:60px;}
+  #landedGunName{font-size:16px;}
+  #landedGunRarity{font-size:12px;}
+}
 
-   
+@media(max-width:400px){ 
+  html,body{padding:8px;}
+  .container{padding:10px;}
+  .title{font-size:20px;}
+  .logo{width:50px;height:50px;}
+  .topnav .cat{padding:6px 8px; font-size:11px;}
+  .btn{padding:6px 8px; font-size:11px;}
+  .grid{grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap:8px;} 
+  .card{padding:6px; min-height:140px;}
+  .card .name{font-size:12px;}
+  .img-wrap{min-height:75px;}
+  .victory-header h2{font-size:18px;} 
+  .victory-item-name{font-size:13px;} 
+  .victory-collect-btn{padding:10px; font-size:13px;}
+}
 </style>
 </head>
 <body>
