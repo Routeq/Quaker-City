@@ -3,8 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Quaker City — Contraband System</title>
+<title>Quaker City — Illegal System</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -24,6 +26,15 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;font-family:"Rajdhani",sans-serif;background:transparent;color:var(--text);-webkit-font-smoothing:antialiased;padding:20px;}
 
+/* Performance optimizations */
+* { -webkit-tap-highlight-color: transparent; }
+.card, .victory-item, .drop-card { contain: layout style paint; transform: translateZ(0); }
+.modal-overlay, .victory-overlay { will-change: opacity; backface-visibility: hidden; }
+.victory-card { will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden; }
+img { will-change: auto; transform: translateZ(0); }
+.grid { contain: layout style; }
+.victory-items-grid { contain: layout; }
+
 /* ---------------------------
    Background video + overlay
    --------------------------- */
@@ -34,9 +45,8 @@ html,body{height:100%;margin:0;font-family:"Rajdhani",sans-serif;background:tran
   height:100%;
   object-fit:cover;
   z-index:0;
-  filter: blur(10px) saturate(.9);
-  transform: scale(1.02);
-  will-change: transform, filter;
+  filter: blur(2px) saturate(.9);
+  transform: translateZ(0);
 }
 #bgDark {
   position:fixed;
@@ -61,13 +71,13 @@ html,body{height:100%;margin:0;font-family:"Rajdhani",sans-serif;background:tran
 .wrap{ position:relative; z-index:6; width:100%; max-width:var(--maxw); margin:0 auto; }
 
 /* main panel */
-.container{ background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); border-radius:18px; padding:18px; border:1px solid var(--glass-border); box-shadow:0 22px 60px rgba(0,0,0,.6); backdrop-filter: blur(8px); }
+.container{ background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); border-radius:18px; padding:18px; border:1px solid var(--glass-border); box-shadow:0 22px 60px rgba(0,0,0,.6); }
 
 /* header */
 .header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
 .header-left{ max-width:70%; }
 .title{ font-size:40px; margin:0; line-height:1; font-weight:900; color:var(--accent); text-shadow:0 8px 24px rgba(0,0,0,.6); }
-.subtitle{ margin-top:6px; color:var(--muted); font-weight:700; }
+.subtitle{ margin-top:6px; color:#dc143c; font-weight:700; }
 
 /* top navigation */
 .topnav{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; align-items:center; }
@@ -101,7 +111,7 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
 
 /* grid */
 .grid-wrap{ margin-top:16px; border-radius:12px; padding:18px; border:1px solid rgba(255,255,255,.03); background: linear-gradient(180deg, rgba(255,255,255,.01), rgba(255,255,255,0)); box-shadow: inset 0 6px 20px rgba(0,0,0,.3); }
-.grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap:14px; align-items:stretch; }
+.grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap:14px; align-items:stretch; transform: translateZ(0); }
 
 /* cards */
 .card{ border-radius:12px; padding:10px; background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)); border:1px solid rgba(255,255,255,.04); min-height:180px; display:flex; flex-direction:column; position:relative; overflow:visible; }
@@ -131,8 +141,7 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
   position: fixed;
   top: 0; left: 0;
   width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.85);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -158,17 +167,16 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
 .stat-title { color:var(--muted); font-weight:800; font-size:12px; }
 .stat-value { font-weight:900; font-size:18px; margin-top:6px; color:#fff; }
 
-/* Victory Frame Styles */
+/* Victory Frame */
 .victory-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100000;
-  animation: victoryFadeIn 0.3s ease-out;
+  animation: victoryFadeIn 0.15s ease-out;
 }
 
 @keyframes victoryFadeIn {
@@ -178,178 +186,228 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
 
 .victory-card {
   position: relative;
-  background: linear-gradient(180deg, rgba(10,20,40,0.98), rgba(5,10,20,0.95));
-  border: 2px solid #dc143c;
-  border-radius: 20px;
-  padding: 40px;
-  max-width: 500px;
-  width: 90%;
+  background: linear-gradient(180deg, #1a0a0a, #0a0505);
+  border: 3px solid #dc143c;
+  border-radius: 16px;
+  padding: 0;
+  max-width: 1000px;
+  width: 95%;
   text-align: center;
-  box-shadow: 0 20px 60px rgba(220,20,60,0.4), 0 0 100px rgba(0,71,171,0.2);
-  animation: victoryPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 50px rgba(220, 20, 60, 0.6), inset 0 0 30px rgba(220, 20, 60, 0.1);
+  animation: victoryScale 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-@keyframes victoryPopIn {
-  from {
+@keyframes victoryScale {
+  0% {
     opacity: 0;
-    transform: scale(0.7) translateY(30px);
+    transform: scale(0.8) translateY(30px) translateZ(0);
   }
-  to {
+  100% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(1) translateY(0) translateZ(0);
   }
-}
-
-.victory-glow {
-  position: absolute;
-  inset: -20px;
-  background: radial-gradient(circle, rgba(220,20,60,0.3), transparent 70%);
-  border-radius: 20px;
-  pointer-events: none;
-  animation: victoryGlow 2s ease-in-out infinite;
-}
-
-@keyframes victoryGlow {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
 }
 
 .victory-header {
-  margin-bottom: 30px;
-}
-
-.victory-header i {
-  font-size: 48px;
-  color: #FFD700;
-  margin-bottom: 10px;
-  animation: victoryTrophy 1s ease-in-out infinite;
-}
-
-@keyframes victoryTrophy {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  25% { transform: translateY(-10px) rotate(-5deg); }
-  75% { transform: translateY(-10px) rotate(5deg); }
+  background: linear-gradient(180deg, #dc143c, #a01030);
+  padding: 20px;
+  border-bottom: 2px solid #ff4757;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .victory-header h2 {
-  font-size: 36px;
-  font-weight: 900;
   margin: 0;
-  background: linear-gradient(45deg, #dc143c, #ff6b6b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 0 30px rgba(220,20,60,0.5);
+  font-size: 42px;
+  font-weight: 900;
+  color: #ff4757;
+  text-shadow: 0 0 20px rgba(255, 71, 87, 0.8), 0 4px 10px rgba(0, 0, 0, 0.5);
+  letter-spacing: 3px;
 }
 
-.victory-item-display {
-  margin: 30px 0;
+.victory-count {
+  font-size: 18px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  letter-spacing: 1px;
 }
 
-.victory-image-wrap {
+.victory-content {
+  padding: 30px 20px;
+}
+
+.victory-items-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.victory-item {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.2));
+  border: 2px solid rgba(255, 0, 0, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.15s ease;
+  animation: victoryItemAppear 0.2s ease-out backwards;
+}
+
+@keyframes victoryItemAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(5px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0) translateZ(0);
+  }
+}
+
+.victory-item:nth-child(1) { animation-delay: 0.03s; }
+.victory-item:nth-child(2) { animation-delay: 0.06s; }
+.victory-item:nth-child(3) { animation-delay: 0.09s; }
+.victory-item:nth-child(4) { animation-delay: 0.12s; }
+.victory-item:nth-child(5) { animation-delay: 0.15s; }
+.victory-item:nth-child(6) { animation-delay: 0.18s; }
+
+.victory-item:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 0, 0, 0.6);
+  box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+}
+
+.victory-image-container {
   position: relative;
-  width: 200px;
-  height: 200px;
-  margin: 0 auto 20px;
-  background: linear-gradient(135deg, rgba(220,20,60,0.1), rgba(0,71,171,0.1));
-  border: 2px solid rgba(255,255,255,0.1);
-  border-radius: 15px;
+  width: 180px;
+  height: 180px;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #ff0000, #dc143c);
+  border: 2px solid #ff0000;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.6), inset 0 0 20px rgba(255, 0, 0, 0.1);
+  animation: victoryImagePulse 2s ease-in-out infinite;
 }
 
-.victory-image-wrap::before {
-  content: '';
-  position: absolute;
-  inset: -50%;
-  background: conic-gradient(from 0deg, transparent, rgba(220,20,60,0.3), transparent);
-  animation: victoryRotate 3s linear infinite;
+@keyframes victoryImagePulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+  }
 }
 
-@keyframes victoryRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.victory-image-wrap img {
-  position: relative;
-  z-index: 1;
-  max-width: 180px;
-  max-height: 180px;
+.victory-image-container img {
+  max-width: 85%;
+  max-height: 85%;
   object-fit: contain;
-  filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
 }
 
 .victory-item-name {
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 900;
   color: #ffffff;
-  margin: 15px 0 10px;
-  text-shadow: 0 0 20px rgba(220,20,60,0.5);
+  margin: 10px 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .victory-item-rarity {
   display: inline-block;
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 14px;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-top: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
 .victory-item-rarity.common {
-  background: linear-gradient(135deg, #6b7280, #4b5563);
+  background: linear-gradient(135deg, #808080, #606060);
   color: #ffffff;
-  box-shadow: 0 4px 15px rgba(107,114,128,0.4);
 }
 
 .victory-item-rarity.uncommon {
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #10b981, #047857);
   color: #ffffff;
-  box-shadow: 0 4px 15px rgba(16,185,129,0.4);
 }
 
 .victory-item-rarity.rare {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
   color: #ffffff;
-  box-shadow: 0 4px 15px rgba(59,130,246,0.4);
 }
 
 .victory-item-rarity.epic {
-  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  background: linear-gradient(135deg, #a855f7, #7e22ce);
   color: #ffffff;
-  box-shadow: 0 4px 15px rgba(168,85,247,0.4);
 }
 
 .victory-item-rarity.legendary {
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #ffffff;
-  box-shadow: 0 4px 15px rgba(245,158,11,0.4);
+}
+
+.victory-item-rarity.special {
+  background: linear-gradient(135deg, #ff6b35, #dc143c);
+  color: #ffffff;
+  animation: rarityGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes rarityGlow {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(220, 20, 60, 0.5);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(220, 20, 60, 0.9);
+  }
+}
+
+.victory-item-desc {
+  color: #b0b8c0;
+  font-size: 15px;
+  margin-top: 15px;
+  font-style: italic;
+  line-height: 1.5;
 }
 
 .victory-collect-btn {
-  margin-top: 30px;
-  padding: 15px 50px;
-  font-size: 18px;
-  font-weight: 800;
+  width: calc(100% - 60px);
+  margin: 0 30px 30px;
+  padding: 18px;
+  font-size: 20px;
+  font-weight: 900;
   background: linear-gradient(135deg, #dc143c, #ff4757);
   color: #ffffff;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(220,20,60,0.4);
+  box-shadow: 0 6px 20px rgba(220, 20, 60, 0.5);
 }
 
 .victory-collect-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(220,20,60,0.6);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(220, 20, 60, 0.7);
   background: linear-gradient(135deg, #ff4757, #dc143c);
 }
 
@@ -358,8 +416,8 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
 }
 
 /* responsive */
-@media(max-width:980px){ .weapon-popup-body{flex-direction:column; align-items:center;} .weapon-popup-image{width:220px;height:220px;} .title{font-size:34px;} .grid{grid-template-columns: repeat(auto-fill, minmax(150px,1fr));} }
-@media(max-width:640px){ .weapon-popup-inner{width:96%;} .weapon-popup-image{width:180px;height:180px;} .title{font-size:26px} .grid{grid-template-columns: repeat(auto-fill, minmax(120px,1fr));} .victory-card{padding:30px;} .victory-header h2{font-size:28px;} .victory-item-name{font-size:22px;} }
+@media(max-width:980px){ .weapon-popup-body{flex-direction:column; align-items:center;} .weapon-popup-image{width:220px;height:220px;} .title{font-size:34px;} .grid{grid-template-columns: repeat(auto-fill, minmax(150px,1fr));} .victory-items-grid{grid-template-columns: repeat(2, 1fr) !important; gap:15px;} .victory-image-container{width:150px;height:150px;} .victory-header h2{font-size:32px;} .victory-header{flex-direction:column; gap:10px;} .victory-count{font-size:14px;} }
+@media(max-width:640px){ .weapon-popup-inner{width:96%;} .weapon-popup-image{width:180px;height:180px;} .title{font-size:26px} .grid{grid-template-columns: repeat(auto-fill, minmax(120px,1fr));} .victory-card{width:98%; max-width:100%;} .victory-items-grid{grid-template-columns: 1fr !important; gap:12px;} .victory-image-container{width:140px;height:140px;} .victory-header h2{font-size:24px;} .victory-item-name{font-size:16px;} .victory-content{padding:20px 15px;} .victory-item{padding:15px;} }
 
  
 
@@ -373,13 +431,13 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
     <source src="video.mp4" type="video/mp4">
   </video>
   <div id="bgDark" aria-hidden="true"></div>
-  <img id="bgEmblem" src="Quaker.png" alt="" aria-hidden="true">
+  <img id="bgEmblem" src="https://media.discordapp.net/attachments/1442278653823156367/1448131969002242249/ChatGPT_Image_Dec_9_2025_07_59_17_PM.png?ex=693a257e&is=6938d3fe&hm=91d5ce2c3f9b1852e0177d58345bce5a295f53c77bbda80e1e5e8b053260074a&=&format=webp&quality=lossless" alt="" aria-hidden="true">
 
   <div class="wrap">
     <div class="header">
       <div class="header-left">
         <h1 class="title">Quaker City</h1>
-        <div class="subtitle">Contraband System</div>
+        <div class="subtitle">Illegal System</div>
 
         <div class="topnav" id="mainNav">
           <div class="cat active" data-tab="tier1"><i class="fa-solid fa-gun"></i>&nbsp;Tier 1 Weaponry</div>
@@ -396,7 +454,7 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
       <div class="header-right">
         <div id="musicToggle" class="music-toggle" title="Toggle Music"><i class="fa-solid fa-volume-high"></i>&nbsp;<span id="musicLabel">Music: On</span></div>
         <div id="adminToggle" class="admin-flag" title="Admin"><i class="fa-solid fa-user-lock"></i></div>
-        <div class="logo"><img src="Quaker.png" class="header-logo" alt="Quaker logo"></div>
+        <div class="logo"><img src="https://media.discordapp.net/attachments/1442278653823156367/1448131969002242249/ChatGPT_Image_Dec_9_2025_07_59_17_PM.png?ex=693a257e&is=6938d3fe&hm=91d5ce2c3f9b1852e0177d58345bce5a295f53c77bbda80e1e5e8b053260074a&=&format=webp&quality=lossless" class="header-logo" alt="Quaker logo"></div>
       </div>
     </div>
 
@@ -456,7 +514,7 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
 
       <div style="position:relative; margin-top:12px;">
         <div id="spinStrip" style="height:140px; display:flex; gap:12px; align-items:center; overflow:hidden; padding:10px;"></div>
-        <div style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:6px; height:120px; border-radius:6px; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); box-shadow: 0 0 24px rgba(255,200,0,.08); pointer-events:none;"></div>
+        <div style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:6px; height:120px; border-radius:6px; background:linear-gradient(180deg, #ff0000, #dc143c); box-shadow: 0 0 30px rgba(255,0,0,.8), 0 0 15px rgba(255,0,0,1); pointer-events:none;"></div>
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
@@ -469,21 +527,16 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
   <!-- Victory Frame -->
   <div id="victoryFrame" class="victory-overlay" style="display:none;">
     <div class="victory-card">
-      <div class="victory-glow"></div>
       <div class="victory-header">
-        <i class="fa-solid fa-trophy"></i>
-        <h2>YOU WON!</h2>
+        <h2 id="victoryHeaderText">YOU GOT:</h2>
+        <div class="victory-count" id="victoryCount">4 ITEMS</div>
       </div>
-      <div class="victory-item-display">
-        <div class="victory-image-wrap">
-          <img id="victoryItemImage" src="" alt="Won Item">
+      <div class="victory-content">
+        <div class="victory-items-grid" id="victoryItemsGrid">
+          <!-- Items will be inserted here dynamically -->
         </div>
-        <div class="victory-item-name" id="victoryItemName">Item Name</div>
-        <div class="victory-item-rarity" id="victoryItemRarity">COMMON</div>
       </div>
-      <button class="btn-collect" id="collectBtn">
-        <i class="fa-solid fa-circle-check"></i> COLLECT
-      </button>
+      <button class="victory-collect-btn" id="victoryCollectBtn">COLLECT ALL</button>
     </div>
   </div>
 
@@ -567,77 +620,218 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
 
 /* ---------------- IMAGE MAP (fixed) ---------------- */
 const IMAGES = {
-  '.38 Special': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447917270901985322/25CE001F-484F-4FDF-BF4A-FC4774C95BCD.png?ex=69395d8a&is=69380c0a&hm=e2984be3e87d899739eb743416b026ec7026221bdab745bae5bb20350bdd61c6',
-  'Ghost Glock 17': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447919932909289594/832A4CE9-FD8F-4AC0-AD33-A17573FB6678.png?ex=69396005&is=69380e85&hm=c65d0869afdd9f413d51d0fc95fdc7425022bfbb003ed81360323ee235edc31d',
-  'Glock 20 Switch': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447924563420647610/Untitled-1.png?ex=69396455&is=693812d5&hm=934924ca97e4e55aa0f5fb25b2a162c116f137470551574d002552a40af62e25',
-  'FNX -45': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447928982212186142/Untitled-2.png?ex=69396872&is=693816f2&hm=9618603ccbed40edd5dd91d7675dd3f81953dc301a014b5b7ac65e85ca27b3a8&',
-  'Beretta M9': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447921669766381732/3528B8D0-0ECC-40C1-B78E-9F4782A78B85.png?ex=693961a3&is=69381023&hm=c98a527bf26c21a4a4107c7b867cc56ffd447ba21d00023fd098142d1257b2bf',
-  'G23': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447928980916146266/E29B517E-6328-4E2A-92FE-FD9A53E3E99A.png?ex=69396872&is=693816f2&hm=73948114d153a5ad0778112fbb9b2b73f4224df4cae1c77eb88e4cffe327fd1c&',
-  'Tec-9': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447929012914487347/Untitled-3.png?ex=69396879&is=693816f9&hm=cd05d44cc96e91a3e7208584293453c3e0b90dcabb83444e00c2202ac58e2552&',
-  'MAC-10': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447929013325664256/Untitled-4.png?ex=69396879&is=693816f9&hm=d7882e3db4141173e2b2a844b1ba194fe412c498e16d92b828ebb5ceea40151d&',
-  'Tactical UZI': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447929013694759056/Untitled-5.png?ex=6939687a&is=693816fa&hm=938ee4d5f6cf6fdd737e8edc7f5d1972b97f5541403e47efb9415fcba5039f4f&',
-  'G22': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447929014080770230/Untitled-6.png?ex=6939687a&is=693816fa&hm=5e704886e078afd69446a1e891ef98d45a620103e2a29ea5ced085a3b5d92efd&',
-  'G41': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447929014378561536/Untitled-7.png?ex=6939687a&is=693816fa&hm=a7039b48bdb73c88273f0735c7a70fea9038f5365f3c2fd1ad3dd5e5cbdb0538&',
-  'G43': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447928980463288320/D4D67B4A-0819-45AD-B9CE-9ED587FDBCFD.png?ex=69396872&is=693816f2&hm=22468180fe4ceb5ded567e5696af1bc42527ed66dfe06d6537c777471f71182a&',
-  'MP9': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447928979737546943/8D2F58DD-9AEC-4C7C-8D2D-47CCC9376227.png?ex=69396871&is=693816f1&hm=274e7ef1f369279e41f92da94c8c569289312a8b7f9eb996b9459644ebc75d75&',
-  'G19 MOS': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447929014755786813/Untitled-8.png?ex=6939687a&is=693816fa&hm=2a2a9f7e73b2630920255c584c286778fc31d12ffc745e04a1b8e90d51be1eee&',
-  'AK-47': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447933467160613075/ChatGPT_Image_Dec_9_2025_07_50_30_AM.png?ex=69396c9f&is=69381b1f&hm=7019158cecb6e768fd47873600d9ac762e6a35eabed057bcf661938d866fee44',
-  'HELLPUP DRACO': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447936430763544707/ChatGPT_Image_Dec_9_2025_08_02_17_AM.png?ex=69396f62&is=69381de2&hm=b6294a35b6c8030783c0a67ee542b2d7605c0f54cea66e102efc920227239b27',
-  'Black ARP': 'images/m4a1.png',
-  'KEL-TEC PLR': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447940726011990157/4062aa87-fe25-4550-9215-408aeb780c3b.png?ex=69397362&is=693821e2&hm=e4157c29e6ef3bfcc08610f0990241120c880ad3d57fb41b56ad98e0247412fe',
-  'All Black Draco': 'https://cdn.discordapp.com/attachments/1435788783852458045/1447941501815619644/ChatGPT_Image_Dec_9_2025_07_58_04_AM.png?ex=6939741b&is=6938229b&hm=46c65393f606b8d2f9f89e564fa49f9d2dca96b035ce627b76517eed74bc2e2b'
+
+  /* -------------------- COMMON (Brown) -------------------- */
+  '.38 Special': 'images/38_special.png',
+  'Ghost Glock 17': 'images/ghost_glock17.png',
+  'Beretta M9': 'images/beretta_m9.png',
+  'MP9': 'images/mp9.png',
+  'Hellcat': 'images/hellcat.png',
+  'TP9': 'images/tp9.png',
+  'SXD9': 'images/sx9.png',
+  'G43x': 'images/g43x.png',
+
+  /* -------------------- UNCOMMON (Green) -------------------- */
+  'G23': 'images/g23.png',
+  'G43': 'images/g43x.png',
+  '1911': 'images/1911.png',
+  'Fn509': 'images/fn509.png',
+  'G19x': 'images/g19x.png',
+  'G27': 'images/g27.png',
+  'G2C': 'images/g2c.png',
+
+  /* -------------------- RARE (Blue) -------------------- */
+  'G22': 'images/g22.png',
+  'G41': 'images/G41.png',
+  'G19 MOS': 'images/g19xmos.png',
+  'Fn57': 'images/fn57.png',
+  'G19 GFlex': 'images/g19_gflex.png',
+  'G30': 'images/g30.png',
+  'Ruger SR45': 'images/ruger_sr45.png',
+  'GH': 'images/gh.png',
+
+  /* -------------------- EPIC (Red) -------------------- */
+  'Glock 20 Switch': 'images/g20_switch.png',
+  'FNX -45': 'images/fnx45.png',
+  'Tec-9': 'images/tec9.png',
+  'MAC-10': 'images/mag10.png',
+  'Tactical UZI': 'images/tactical_uzi.png',
+  'KEL-TEC PLR': 'images/keltec_plr.png',
+  'Tone ARP': 'images/2tone_arp.png',
+  '300 ARP': 'images/300arp.png',
+  'G17 Switch': 'images/g17_switch.png',
+  'G17B': 'images/g17b.png',
+  'G40': 'images/g40.png',
+ 
+  'Red ARP': 'images/red_arp.png',
+  'MPA30': 'images/mpa30.png',
+  'Keltec': 'images/keltec.png',
+  'Incognito G19': 'images/i_g19.png',
+
+  /* -------------------- LEGENDARY (Yellow) -------------------- */
+  'AK-47': 'images/ak47.png',
+  'HELLPUP DRACO': 'images/hellpup.png',
+  'All Black Draco': 'images/all_black_draco.png',
+  'ZPAP M92': 'images/ZPAP_M92.png',
+  'Deagle': 'images/deagle.png',
+  'G18c': 'images/g18c.png',
+  'XDM-Elite': 'images/xdm_elite.png',
+  'P90': 'images/p90.png',
+  'MP5A3': 'images/mp5_a3.png',
+  'M16A1': 'images/m16a1.png',
+  'Red Draco': 'images/red_draco.png'
 };
+
 const FALLBACK = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="240"%3E%3Crect fill="%23333" width="400" height="240"/%3E%3Ctext x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23999"%3ENo Image%3C/text%3E%3C/svg%3E';
 
 /* ---------------- WEAPON STATS (updated damage by rarity) ---------------- */
 const WEAPON_STATS = {
-  '.38 Special': { damage: 25, fire: 750, ammo: '9mm', magStd: 15, magExt: 33 },                  // Common
-  'Ghost Glock 17': { damage: 25, fire: 750, ammo: '9mm', magStd: 15, magExt: 33 },               // Common
-  'Glock 20 Switch': { damage: 35, fire: 600, ammo: '.45 ACP', magStd: 10, magExt: 21 },          // Epic
-  'FNX -45': { damage: 35, fire: 750, ammo: '9mm', magStd: 15, magExt: 30 },                      // Epic
-  'Beretta M9': { damage: 25, fire: 750, ammo: '9mm', magStd: 15, magExt: 30 },                   // Common
-  'G23': { damage: 25, fire: 750, ammo: '9mm', magStd: 16, magExt: 32 },                          // Uncommon
-  'Tec-9': { damage: 35, fire: 400, ammo: '.45 ACP', magStd: 8, magExt: 16 },                     // Epic
-  'MAC-10': { damage: 35, fire: 1000, ammo: '9mm', magStd: 20, magExt: 40 },                      // Epic
-  'Tactical UZI': { damage: 35, fire: 1090, ammo: '.45 ACP', magStd: 30, magExt: 50 },               // Epic
-  'G22': { damage: 30, fire: 1200, ammo: '9mm', magStd: 25, magExt: 50 },                         // Rare
-  'G41': { damage: 30, fire: 1100, ammo: '.32 ACP', magStd: 20, magExt: 40 },                     // Rare
-  'G43': { damage: 25, fire: 800, ammo: '9mm', magStd: 30, magExt: 60 },                          // Uncommon
-  'MP9': { damage: 25, fire: 600, ammo: '.45 ACP', magStd: 25, magExt: 50 },                      // Common
-  'G19 MOS': { damage: 30, fire: 900, ammo: '5.7x28', magStd: 50, magExt: 100 },                  // Rare
-  'AK-47': { damage: 36, fire: 750, ammo: '5.56x45', magStd: 30, magExt: 60 },                    // Legendary
-  'HELLPUP DRACO': { damage: 36, fire: 750, ammo: '5.56x45', magStd: 30, magExt: 60 },            // Legendary
-  'Black ARP': { damage: 35, fire: 800, ammo: '5.56x45', magStd: 30, magExt: 60 },                // Epic
-  'KEL-TEC PLR': { damage: 35, fire: 1200, ammo: '.45 ACP', magStd: 25, magExt: 50 },             // Epic
-  'All Black Draco': { damage: 36, fire: 750, ammo: '5.56x45', magStd: 30, magExt: 60 }                     // Legendary
+  /* ---------------- COMMON ---------------- */
+'.38 Special': { damage: 25, fire: 750, ammo: '9mm', magStd: 15, magExt: 33 },
+'Ghost Glock 17': { damage: 25, fire: 750, ammo: '9mm', magStd: 15, magExt: 33 },
+'Beretta M9': { damage: 25, fire: 750, ammo: '9mm', magStd: 15, magExt: 30 },
+'MP9': { damage: 25, fire: 600, ammo: '.45 ACP', magStd: 25, magExt: 50 },
+'Hellcat': { damage: 25, fire: 720, ammo: '9mm', magStd: 13, magExt: 26 },
+'TP9': { damage: 25, fire: 740, ammo: '9mm', magStd: 18, magExt: 36 },
+'SXD9': { damage: 25, fire: 730, ammo: '9mm', magStd: 16, magExt: 32 },
+'G43x': { damage: 25, fire: 710, ammo: '9mm', magStd: 10, magExt: 20 },
+
+/* ---------------- UNCOMMON ---------------- */
+'G23': { damage: 28, fire: 750, ammo: '9mm', magStd: 16, magExt: 32 },
+'G43': { damage: 28, fire: 800, ammo: '9mm', magStd: 30, magExt: 60 },
+'1911': { damage: 28, fire: 700, ammo: '.45 ACP', magStd: 8, magExt: 16 },
+'Fn509': { damage: 28, fire: 780, ammo: '9mm', magStd: 17, magExt: 34 },
+'G19x': { damage: 28, fire: 790, ammo: '9mm', magStd: 19, magExt: 38 },
+'G27': { damage: 28, fire: 760, ammo: '9mm', magStd: 15, magExt: 30 },
+'G2C': { damage: 28, fire: 750, ammo: '9mm', magStd: 12, magExt: 24 },
+
+/* ---------------- RARE ---------------- */
+'G22': { damage: 30, fire: 1200, ammo: '9mm', magStd: 25, magExt: 50 },
+'G41': { damage: 30, fire: 1100, ammo: '.32 ACP', magStd: 20, magExt: 40 },
+'G19 MOS': { damage: 30, fire: 900, ammo: '5.7x28', magStd: 50, magExt: 100 },
+'Fn57': { damage: 30, fire: 850, ammo: '5.7x28', magStd: 20, magExt: 40 },
+'G19 GFlex': { damage: 30, fire: 880, ammo: '9mm', magStd: 19, magExt: 38 },
+'G30': { damage: 30, fire: 820, ammo: '.45 ACP', magStd: 10, magExt: 20 },
+'Ruger SR45': { damage: 30, fire: 840, ammo: '.45 ACP', magStd: 10, magExt: 20 },
+'GH': { damage: 30, fire: 860, ammo: '9mm', magStd: 17, magExt: 34 },
+
+/* ---------------- EPIC ---------------- */
+'Glock 20 Switch': { damage: 35, fire: 600, ammo: '.45 ACP', magStd: 10, magExt: 21 },
+'FNX -45': { damage: 35, fire: 750, ammo: '9mm', magStd: 15, magExt: 30 },
+'Tec-9': { damage: 35, fire: 400, ammo: '.45 ACP', magStd: 8, magExt: 16 },
+'MAC-10': { damage: 35, fire: 1000, ammo: '9mm', magStd: 20, magExt: 40 },
+'Tactical UZI': { damage: 35, fire: 1090, ammo: '.45 ACP', magStd: 30, magExt: 50 },
+'KEL-TEC PLR': { damage: 35, fire: 1200, ammo: '.45 ACP', magStd: 25, magExt: 50 },
+'Tone ARP': { damage: 35, fire: 820, ammo: '5.56x45', magStd: 30, magExt: 60 },
+'300 ARP': { damage: 35, fire: 810, ammo: '5.56x45', magStd: 30, magExt: 60 },
+'G17 Switch': { damage: 35, fire: 950, ammo: '9mm', magStd: 17, magExt: 34 },
+'G17B': { damage: 35, fire: 920, ammo: '9mm', magStd: 17, magExt: 34 },
+'G40': { damage: 35, fire: 880, ammo: '10mm', magStd: 15, magExt: 30 },
+
+'Red ARP': { damage: 35, fire: 840, ammo: '5.56x45', magStd: 30, magExt: 60 },
+'MPA30': { damage: 35, fire: 1050, ammo: '9mm', magStd: 30, magExt: 60 },
+'Keltec': { damage: 35, fire: 1100, ammo: '9mm', magStd: 33, magExt: 66 },
+'Incognito G19': { damage: 35, fire: 900, ammo: '9mm', magStd: 19, magExt: 38 },
+
+/* ---------------- LEGENDARY ---------------- */
+'AK-47': { damage: 36, fire: 750, ammo: '5.56x45', magStd: 30, magExt: 60 },
+'HELLPUP DRACO': { damage: 36, fire: 750, ammo: '5.56x45', magStd: 30, magExt: 60 },
+'All Black Draco': { damage: 36, fire: 750, ammo: '5.56x45', magStd: 30, magExt: 60 },
+'ZPAP M92': { damage: 36, fire: 780, ammo: '7.62x39', magStd: 30, magExt: 60 },
+'Deagle': { damage: 36, fire: 600, ammo: '.50 AE', magStd: 7, magExt: 14 },
+'G18c': { damage: 36, fire: 1200, ammo: '9mm', magStd: 17, magExt: 34 },
+'XDM-Elite': { damage: 36, fire: 820, ammo: '9mm', magStd: 19, magExt: 38 },
+'P90': { damage: 36, fire: 1100, ammo: '5.7x28', magStd: 50, magExt: 100 },
+'MP5A3': { damage: 36, fire: 950, ammo: '9mm', magStd: 30, magExt: 60 },
+'Red Draco': { damage: 35, fire: 830, ammo: '7.62x39', magStd: 30, magExt: 60 },
+'M16A1': { damage: 36, fire: 800, ammo: '5.56x45', magStd: 30, magExt: 60 }
 };
 
 /* ---------------- ITEMS dataset ---------------- */
 const ITEMS = {
   tier1: [
-    { name:'.38 Special', rarity:'common', category:'Pistols', img:IMAGES['.38 Special'] || FALLBACK },
-    { name:'Ghost Glock 17', rarity:'common', category:'Pistols', img:IMAGES['Ghost Glock 17'] || FALLBACK },
-    { name:'Glock 20 Switch', rarity:'epic', category:'Pistols', img:IMAGES['Glock 20 Switch'] || FALLBACK },
-    { name:'FNX -45', rarity:'epic', category:'Pistols', img:IMAGES['FNX -45'] || FALLBACK },
-    { name:'Beretta M9', rarity:'common', category:'Pistols', img:IMAGES['Beretta M9'] || FALLBACK },
-    { name:'G23', rarity:'uncommon', category:'Pistols', img:IMAGES['G23'] || FALLBACK },
-    { name:'Tec-9', rarity:'epic', category:'Pistols', img:IMAGES['Tec-9'] || FALLBACK },
-    { name:'MAC-10', rarity:'epic', category:'SMG', img:IMAGES['MAC-10'] || FALLBACK },
-    { name:'Tactical UZI', rarity:'epic', category:'SMG', img:IMAGES['Tactical UZI'] || FALLBACK },
-    { name:'G22', rarity:'rare', category:'SMG', img:IMAGES['G22'] || FALLBACK },
-    { name:'G41', rarity:'rare', category:'SMG', img:IMAGES['G41'] || FALLBACK },
-    { name:'G43', rarity:'uncommon', category:'Pistols', img:IMAGES['G43'] || FALLBACK },
-    { name:'MP9', rarity:'common', category:'SMG', img:IMAGES['MP9'] || FALLBACK },
-    { name:'G19 MOS', rarity:'rare', category:'Pistols', img:IMAGES['G19 MOS'] || FALLBACK }
-  ],
-  tier2: [
-    { name:'AK-47', rarity:'legendary', category:'ARs', img:IMAGES['AK-47'] || FALLBACK },
-    { name:'HELLPUP DRACO', rarity:'legendary', category:'ARs', img:IMAGES['HELLPUP DRACO'] || FALLBACK },
-    { name:'Black ARP', rarity:'epic', category:'ARs', img:IMAGES['Black ARP'] || FALLBACK },
-    { name:'KEL-TEC PLR', rarity:'epic', category:'Pistols', img:IMAGES['KEL-TEC PLR'] || FALLBACK },
-    { name:'All Black Draco', rarity:'legendary', category:'ARs', img:IMAGES['Draco'] || FALLBACK }
-  ],
-  testdrops: [
+
+  /* -------- COMMON (Brown) -------- */
+  { name:'.38 Special', rarity:'common', category:'Pistols', img:IMAGES['.38 Special'] },
+  { name:'Ghost Glock 17', rarity:'common', category:'Pistols', img:IMAGES['Ghost Glock 17'] },
+  { name:'Beretta M9', rarity:'common', category:'Pistols', img:IMAGES['Beretta M9'] },
+  { name:'MP9', rarity:'common', category:'SMG', img:IMAGES['MP9'] },
+  { name:'Hellcat', rarity:'common', category:'Pistols', img:IMAGES['Hellcat'] },
+  { name:'TP9', rarity:'common', category:'Pistols', img:IMAGES['TP9'] },
+  { name:'SXD9', rarity:'common', category:'Pistols', img:IMAGES['SXD9'] },
+  { name:'G43x', rarity:'common', category:'Pistols', img:IMAGES['G43x'] },
+
+  /* -------- UNCOMMON (Green) -------- */
+  { name:'G23', rarity:'uncommon', category:'Pistols', img:IMAGES['G23'] },
+  { name:'G43', rarity:'uncommon', category:'Pistols', img:IMAGES['G43'] },
+  { name:'1911', rarity:'uncommon', category:'Pistols', img:IMAGES['1911'] },
+  { name:'Fn509', rarity:'uncommon', category:'Pistols', img:IMAGES['Fn509'] },
+  { name:'G19x', rarity:'uncommon', category:'Pistols', img:IMAGES['G19x'] },
+  { name:'G27', rarity:'uncommon', category:'Pistols', img:IMAGES['G27'] },
+  { name:'G2C', rarity:'uncommon', category:'Pistols', img:IMAGES['G2C'] },
+
+  /* -------- RARE (Blue) -------- */
+  { name:'G22', rarity:'rare', category:'SMG', img:IMAGES['G22'] },
+  { name:'G41', rarity:'rare', category:'SMG', img:IMAGES['G41'] },
+  { name:'G19 MOS', rarity:'rare', category:'Pistols', img:IMAGES['G19 MOS'] },
+  { name:'Fn57', rarity:'rare', category:'Pistols', img:IMAGES['Fn57'] },
+  { name:'G19 GFlex', rarity:'rare', category:'Pistols', img:IMAGES['G19 GFlex'] },
+  { name:'G30', rarity:'rare', category:'Pistols', img:IMAGES['G30'] },
+  { name:'Ruger SR45', rarity:'rare', category:'Pistols', img:IMAGES['Ruger SR45'] },
+  { name:'GH', rarity:'rare', category:'Pistols', img:IMAGES['GH'] }
+],
+
+tier2: [
+
+  /* -------- UNCOMMON -------- */
+  { name:'1911', rarity:'uncommon', category:'Pistols', img:IMAGES['1911'] },
+  { name:'Fn509', rarity:'uncommon', category:'Pistols', img:IMAGES['Fn509'] },
+  { name:'G19x', rarity:'uncommon', category:'Pistols', img:IMAGES['G19x'] },
+  { name:'G27', rarity:'uncommon', category:'Pistols', img:IMAGES['G27'] },
+
+  /* -------- RARE -------- */
+  { name:'G22', rarity:'rare', category:'SMG', img:IMAGES['G22'] },
+  { name:'G41', rarity:'rare', category:'SMG', img:IMAGES['G41'] },
+  { name:'G19 MOS', rarity:'rare', category:'Pistols', img:IMAGES['G19 MOS'] },
+  { name:'Fn57', rarity:'rare', category:'Pistols', img:IMAGES['Fn57'] },
+  { name:'G19 GFlex', rarity:'rare', category:'Pistols', img:IMAGES['G19 GFlex'] },
+  { name:'G30', rarity:'rare', category:'Pistols', img:IMAGES['G30'] },
+  { name:'Ruger SR45', rarity:'rare', category:'Pistols', img:IMAGES['Ruger SR45'] },
+  { name:'GH', rarity:'rare', category:'Pistols', img:IMAGES['GH'] },
+
+  /* -------- EPIC -------- */
+  { name:'Glock 20 Switch', rarity:'epic', category:'Pistols', img:IMAGES['Glock 20 Switch'] },
+  { name:'FNX -45', rarity:'epic', category:'Pistols', img:IMAGES['FNX -45'] },
+  { name:'Tec-9', rarity:'epic', category:'Pistols', img:IMAGES['Tec-9'] },
+  { name:'MAC-10', rarity:'epic', category:'SMG', img:IMAGES['MAC-10'] },
+  { name:'Tactical UZI', rarity:'epic', category:'SMG', img:IMAGES['Tactical UZI'] },
+  { name:'KEL-TEC PLR', rarity:'epic', category:'Pistols', img:IMAGES['KEL-TEC PLR'] },
+  { name:'Tone ARP', rarity:'epic', category:'ARs', img:IMAGES['Tone ARP'] },
+  { name:'300 ARP', rarity:'epic', category:'ARs', img:IMAGES['300 ARP'] },
+  { name:'G17 Switch', rarity:'epic', category:'Pistols', img:IMAGES['G17 Switch'] },
+  { name:'G17B', rarity:'epic', category:'Pistols', img:IMAGES['G17B'] },
+  { name:'G40', rarity:'epic', category:'Pistols', img:IMAGES['G40'] },
+ 
+  { name:'Red ARP', rarity:'epic', category:'ARs', img:IMAGES['Red ARP'] },
+  { name:'MPA30', rarity:'epic', category:'SMG', img:IMAGES['MPA30'] },
+  { name:'Keltec', rarity:'epic', category:'SMG', img:IMAGES['Keltec'] },
+  { name:'Incognito G19', rarity:'epic', category:'Pistols', img:IMAGES['Incognito G19'] },
+
+  /* -------- LEGENDARY -------- */
+  { name:'AK-47', rarity:'legendary', category:'ARs', img:IMAGES['AK-47'] },
+  { name:'HELLPUP DRACO', rarity:'legendary', category:'ARs', img:IMAGES['HELLPUP DRACO'] },
+  { name:'All Black Draco', rarity:'legendary', category:'ARs', img:IMAGES['All Black Draco'] },
+  { name:'ZPAP M92', rarity:'legendary', category:'ARs', img:IMAGES['ZPAP M92'] },
+  { name:'Deagle', rarity:'legendary', category:'Pistols', img:IMAGES['Deagle'] },
+  { name:'G18c', rarity:'legendary', category:'Pistols', img:IMAGES['G18c'] },
+  { name:'XDM-Elite', rarity:'legendary', category:'Pistols', img:IMAGES['XDM-Elite'] },
+  { name:'P90', rarity:'legendary', category:'SMG', img:IMAGES['P90'] },
+  { name:'MP5A3', rarity:'legendary', category:'SMG', img:IMAGES['MP5A3'] },
+  { name:'Red Draco', rarity:'epic', category:'ARs', img:IMAGES['Red Draco'] },
+  { name:'M16A1', rarity:'legendary', category:'ARs', img:IMAGES['M16A1'] }
+],
+
+testdrops: [
     { name:'.38 Special', rarity:'common', category:'Pistols', img:IMAGES['.38 Special'] || FALLBACK },
     { name:'Ghost Glock 17', rarity:'common', category:'Pistols', img:IMAGES['Ghost Glock 17'] || FALLBACK },
     { name:'Beretta M9', rarity:'common', category:'Pistols', img:IMAGES['Beretta M9'] || FALLBACK },
@@ -669,7 +863,7 @@ const ITEMS = {
 /* weights */
 const DEFAULT_WEIGHTS = {
   tier1: { common:35, uncommon:40, rare:25, epic:10 },
-  tier2: { rare:50, epic:40, legendary:10 },
+  tier2: { uncommon:15, rare:40, epic:30, legendary:15 },
   testdrops: { common:40, uncommon:30, rare:20, epic:10 },
   attachments: { uncommon:50, rare:30, epic:15, legendary:5 },
   drugs: { common:35, uncommon:25, rare:25, epic:15 }
@@ -769,6 +963,33 @@ function renderSubtabs(tab){
     subtabsEl.appendChild(el);
   });
   activeSub = arr[0];
+  
+  // Update filter dropdown based on tab
+  if(tab === 'tier1') {
+    filterSelect.innerHTML = `
+      <option value="all">All</option>
+      <option value="common">Common</option>
+      <option value="uncommon">Uncommon</option>
+      <option value="rare">Rare</option>
+    `;
+  } else if(tab === 'tier2' || tab === 'testdrops') {
+    filterSelect.innerHTML = `
+      <option value="all">All</option>
+      <option value="uncommon">Uncommon</option>
+      <option value="rare">Rare</option>
+      <option value="epic">Epic</option>
+      <option value="legendary">Legendary</option>
+    `;
+  } else {
+    filterSelect.innerHTML = `
+      <option value="all">All</option>
+      <option value="common">Common</option>
+      <option value="uncommon">Uncommon</option>
+      <option value="rare">Rare</option>
+      <option value="epic">Epic</option>
+      <option value="legendary">Legendary</option>
+    `;
+  }
 }
 
 /* ---------- filtering ---------- */
@@ -881,20 +1102,21 @@ function enableBGM(){ function start(){ if(bgm){ bgm.play().catch(()=>{}); } doc
 enableBGM();
 setTimeout(()=> { const mp = localStorage.getItem('qc_music_on'); setMusicOn(mp !== '0'); }, 100);
 
-/* spinner modal logic: 5 second spin with easing */
+/* spinner modal logic: 1 second spin with easing */
 function renderSpinStrip(){
   spinStrip.innerHTML = '';
   const pool = (ITEMS[activeTab]||[]).slice();
   if(pool.length === 0){ spinStrip.innerHTML = '<div style="color:var(--muted)">No items in this category.</div>'; return; }
-  for(let i=0;i<60;i++){
+  const fragment = document.createDocumentFragment();
+  for(let i=0;i<15;i++){
     const it = rand(pool);
     const tile = document.createElement('div');
-    tile.style.minWidth='140px'; tile.style.height='120px'; tile.style.borderRadius='10px'; tile.style.overflow='hidden';
-    tile.style.background='linear-gradient(180deg, rgba(0,0,0,.16), rgba(255,255,255,0))'; tile.style.border='1px solid rgba(255,255,255,.04)';
-    tile.style.display='flex'; tile.style.flexDirection='column'; tile.style.alignItems='center'; tile.style.justifyContent='center';
-    tile.style.padding='8px'; tile.innerHTML = `<div style="font-weight:900;color:var(--muted);margin-bottom:6px;">${it.name}</div><img src="${it.img}" style="max-width:100%; max-height:64px; object-fit:contain" onerror="this.src='${FALLBACK}'">`;
-    spinStrip.appendChild(tile);
+    tile.className = 'spin-tile';
+    tile.style.cssText = 'min-width:140px;height:120px;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,rgba(0,0,0,.16),rgba(255,255,255,0));border:1px solid rgba(255,255,255,.04);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;contain:layout style paint;';
+    tile.innerHTML = `<div style="font-weight:900;color:var(--muted);margin-bottom:6px;">${it.name}</div><img src="${it.img}" style="max-width:100%;max-height:64px;object-fit:contain" loading="eager" onerror="this.src='${FALLBACK}'">`;
+    fragment.appendChild(tile);
   }
+  spinStrip.appendChild(fragment);
 }
 
 function computeDelays(durationMs, steps){
@@ -912,23 +1134,43 @@ spinStartBtn.addEventListener('click', async ()=>{
   if(spinning) return;
   spinning = true;
   playSFX('spin');
-  renderSpinStrip();
-  const steps = 60;
-  const duration = 5000; // 5 seconds total
-  const delays = computeDelays(duration, steps);
-  for (let i=0;i<steps;i++){
-    if(spinStrip.firstElementChild) spinStrip.appendChild(spinStrip.firstElementChild);
-    await tick(delays[i]);
+  
+  // Determine how many items to drop based on tier
+  let itemCount = 4; // Default for tier1
+  if(activeTab === 'testdrops') itemCount = 2;
+  else if(activeTab === 'tier2') itemCount = 6;
+  
+  // Pick all items first
+  const pickedItems = [];
+  for(let i = 0; i < itemCount; i++) {
+    const item = pickWeightedItem(activeTab);
+    pickedItems.push(item);
+    addAcquired(item);
   }
-  const picked = pickWeightedItem(activeTab);
-  addAcquired(picked);
-  sendWebhook({ action:'spin', tier:activeTab, result:picked.name, rarity:picked.rarity, ts:new Date().toISOString() });
+  
+  // Spin for each item
+  for(let itemIndex = 0; itemIndex < itemCount; itemIndex++) {
+    renderSpinStrip();
+    
+    // 1 second spin with smooth deceleration
+    const steps = 15;
+    const duration = 1000; // 1 second per spin
+    const delays = computeDelays(duration, steps);
+    
+    for (let i = 0; i < steps; i++){
+      const first = spinStrip.firstElementChild;
+      if(first) spinStrip.appendChild(first);
+      await tick(delays[i]);
+    }
+    
+    // No delay between spins for smooth continuous action
+  }
+  
+  sendWebhook({ action:'spin', tier:activeTab, result:`${itemCount} items`, ts:new Date().toISOString() });
   playSFX('win');
-  setTimeout(()=> { 
-    closeSpinModal(); 
-    spinning = false;
-    showVictoryFrame(picked.name, picked.img, picked.rarity);
-  }, 700);
+  closeSpinModal();
+  spinning = false;
+  showVictoryFrame(pickedItems);
 });
 
 function openSpinModal(){ spinModal.classList.add('open'); spinModal.style.display='flex'; renderSpinStrip(); }
@@ -936,19 +1178,48 @@ function closeSpinModal(){ spinModal.classList.remove('open'); spinModal.style.d
 dropBtn.addEventListener('click', openSpinModal);
 closeSpin.addEventListener('click', closeSpinModal);
 
-/* Victory Frame */
-function showVictoryFrame(itemName, itemImage, rarity) {
+/* Victory Frame Functions */
+function showVictoryFrame(items) {
   const victoryFrame = document.getElementById('victoryFrame');
-  const victoryItemImage = document.getElementById('victoryItemImage');
-  const victoryItemName = document.getElementById('victoryItemName');
-  const victoryItemRarity = document.getElementById('victoryItemRarity');
+  const victoryItemsGrid = document.getElementById('victoryItemsGrid');
+  const victoryCount = document.getElementById('victoryCount');
+  const victoryHeaderText = document.getElementById('victoryHeaderText');
   
-  victoryItemImage.src = itemImage || FALLBACK;
-  victoryItemName.textContent = itemName;
-  victoryItemRarity.textContent = rarity;
-  victoryItemRarity.className = 'victory-item-rarity ' + rarity.toLowerCase();
+  // Update header
+  victoryHeaderText.textContent = 'YOU GOT:';
+  victoryCount.textContent = `${items.length} ITEM${items.length > 1 ? 'S' : ''}`;
   
-  victoryFrame.style.display = 'flex';
+  // Clear existing items
+  victoryItemsGrid.innerHTML = '';
+  
+  // Use document fragment for better performance
+  const fragment = document.createDocumentFragment();
+  items.forEach((item, index) => {
+    const itemEl = document.createElement('div');
+    itemEl.className = 'victory-item';
+    itemEl.innerHTML = `
+      <div class="victory-image-container">
+        <img src="${item.img || FALLBACK}" alt="${item.name}" loading="eager" onerror="this.src='${FALLBACK}'">
+      </div>
+      <div class="victory-item-name">${item.name}</div>
+      <div class="victory-item-rarity ${item.rarity.toLowerCase()}">${item.rarity.toUpperCase()}</div>
+    `;
+    fragment.appendChild(itemEl);
+  });
+  victoryItemsGrid.appendChild(fragment);
+  
+  // Adjust grid columns based on item count
+  if(items.length === 2) {
+    victoryItemsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+  } else if(items.length === 4) {
+    victoryItemsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+  } else if(items.length === 6) {
+    victoryItemsGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  }
+  
+  requestAnimationFrame(() => {
+    victoryFrame.style.display = 'flex';
+  });
   playSFX('win');
 }
 
@@ -1032,9 +1303,10 @@ function init(){
   const mp = localStorage.getItem('qc_music_on');
   setTimeout(()=> setMusicOn(mp !== '0'), 60);
   // allow audio context resume on first interaction
-  document.addEventListener('click', ()=> { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{}); });
+  document.addEventListener('click', ()=> { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{}); }, { passive: true });
   console.log('Quaker City Option B final build ready. Admin password (client-side):', ADMIN_PASS);
 }
+// Start immediately
 init();
 
 /* ESC closes modals */
