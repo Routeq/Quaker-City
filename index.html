@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Quaker City — Illegal System</title>
+<title>The Five Borough Illegal Civ</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -504,16 +504,12 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
   <div class="wrap">
     <div class="header">
       <div class="header-left">
-        <h1 class="title">Quaker City</h1>
-        <div class="subtitle">Illegal System</div>
+        <h1 class="title">The Five Borough Illegal Civ</h1>
+        <div class="subtitle">Spin System</div>
 
         <div class="topnav" id="mainNav">
-          <div class="cat active" data-tab="tier1"><i class="fa-solid fa-gun"></i>&nbsp;Tier 1 Weaponry</div>
-          <div class="cat" data-tab="tier2"><i class="fa-solid fa-shield"></i>&nbsp;Tier 2 Weaponry</div>
-          <div class="cat" data-tab="testdrops"><i class="fa-solid fa-bullseye"></i>&nbsp;Test Drops</div>
-          <div class="cat" data-tab="attachments"><i class="fa-solid fa-wrench"></i>&nbsp;Attachments</div>
+          <div class="cat active" data-tab="testdrops"><i class="fa-solid fa-bullseye"></i>&nbsp;Test Drops</div>
           <div class="cat" data-tab="drugs"><i class="fa-solid fa-capsules"></i>&nbsp;Drugs</div>
-          <div class="cat" data-tab="turf"><i class="fa-solid fa-map"></i>&nbsp;Turf Map</div>
         </div>
 
         <div class="subtabs" id="subtabs"></div>
@@ -569,7 +565,7 @@ select{ background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.04); colo
     </div>
 
     <div style="height:18px"></div>
-    <div class="footer"><div>© Quaker City Roleplay</div><div style="color:var(--muted)">Built with ❤️</div></div>
+    <div class="footer"><div>© The Five Borough Illegal Civ</div><div style="color:var(--muted)">Built with ❤️</div></div>
   </div>
 
   <!-- Spin modal -->
@@ -830,93 +826,7 @@ const WEAPON_STATS = {
 
 /* ---------------- ITEMS dataset ---------------- */
 const ITEMS = {
-  tier1: [
-
-  /* -------- COMMON (Brown) -------- */
-  { name:'.38 Special', rarity:'common', category:'Pistols', img:IMAGES['.38 Special'] },
-  { name:'Ghost Glock 17', rarity:'common', category:'Pistols', img:IMAGES['Ghost Glock 17'] },
-  { name:'Beretta M9', rarity:'common', category:'Pistols', img:IMAGES['Beretta M9'] },
-  { name:'MP9', rarity:'common', category:'SMG', img:IMAGES['MP9'] },
-  { name:'Hellcat', rarity:'common', category:'Pistols', img:IMAGES['Hellcat'] },
-  { name:'TP9', rarity:'common', category:'Pistols', img:IMAGES['TP9'] },
-  { name:'SXD9', rarity:'common', category:'Pistols', img:IMAGES['SXD9'] },
- 
-  /* -------- UNCOMMON (Green) -------- */
-  { name:'G23', rarity:'uncommon', category:'Pistols', img:IMAGES['G23'] },
-  { name:'G43', rarity:'uncommon', category:'Pistols', img:IMAGES['G43'] },
-  { name:'Fn509', rarity:'uncommon', category:'Pistols', img:IMAGES['Fn509'] },
-  { name:'G19x', rarity:'uncommon', category:'Pistols', img:IMAGES['G19x'] },
-  { name:'G27', rarity:'uncommon', category:'Pistols', img:IMAGES['G27'] },
-  { name:'G2C', rarity:'uncommon', category:'Pistols', img:IMAGES['G2C'] },
-  { name:'G43x', rarity:'uncommon', category:'Pistols', img:IMAGES['G43x'] },
-
-  /* -------- RARE (Blue) -------- */
-  { name:'G22', rarity:'rare', category:'SMG', img:IMAGES['G22'] },
-  { name:'G41', rarity:'rare', category:'SMG', img:IMAGES['G41'] },
-  { name:'G19 MOS', rarity:'rare', category:'Pistols', img:IMAGES['G19 MOS'] },
-  { name:'Fn57', rarity:'rare', category:'Pistols', img:IMAGES['Fn57'] },
-  { name:'G19 GFlex', rarity:'rare', category:'Pistols', img:IMAGES['G19 GFlex'] },
-  { name:'G30', rarity:'rare', category:'Pistols', img:IMAGES['G30'] },
-  { name:'Ruger SR45', rarity:'rare', category:'Pistols', img:IMAGES['Ruger SR45'] },
-  { name:'GH', rarity:'rare', category:'Pistols', img:IMAGES['GH'] },
-
-  /* -------- Epic (Red) -------- */
-  { name:'G17B', rarity:'epic', category:'Pistols', img:IMAGES['G17B'] },
-  { name:'G40', rarity:'epic', category:'Pistols', img:IMAGES['G40'] }
-],
-
-tier2: [
-
-  /* -------- UNCOMMON -------- */
-  
-  { name:'Fn509', rarity:'uncommon', category:'Pistols', img:IMAGES['Fn509'] },
-  { name:'G19x', rarity:'uncommon', category:'Pistols', img:IMAGES['G19x'] },
-  { name:'G27', rarity:'uncommon', category:'Pistols', img:IMAGES['G27'] },
-
-  /* -------- RARE -------- */
-  { name:'1911', rarity:'rare', category:'Pistols', img:IMAGES['1911'] },
-  { name:'G22', rarity:'rare', category:'SMG', img:IMAGES['G22'] },
-  { name:'G41', rarity:'rare', category:'SMG', img:IMAGES['G41'] },
-  { name:'G19 MOS', rarity:'rare', category:'Pistols', img:IMAGES['G19 MOS'] },
-  { name:'Fn57', rarity:'rare', category:'Pistols', img:IMAGES['Fn57'] },
-  { name:'G19 GFlex', rarity:'rare', category:'Pistols', img:IMAGES['G19 GFlex'] },
-  { name:'G30', rarity:'rare', category:'Pistols', img:IMAGES['G30'] },
-  { name:'Ruger SR45', rarity:'rare', category:'Pistols', img:IMAGES['Ruger SR45'] },
-  { name:'GH', rarity:'rare', category:'Pistols', img:IMAGES['GH'] },
-
-  /* -------- EPIC -------- */
-  { name:'Glock 20 Switch', rarity:'epic', category:'Pistols', img:IMAGES['Glock 20 Switch'] },
-  { name:'FNX -45', rarity:'epic', category:'Pistols', img:IMAGES['FNX -45'] },
-  { name:'Tec-9', rarity:'epic', category:'Pistols', img:IMAGES['Tec-9'] },
-  { name:'MAC-10', rarity:'epic', category:'SMG', img:IMAGES['MAC-10'] },
-  { name:'Tactical UZI', rarity:'epic', category:'SMG', img:IMAGES['Tactical UZI'] },
-  { name:'KEL-TEC PLR', rarity:'epic', category:'Pistols', img:IMAGES['KEL-TEC PLR'] },
-  { name:'Tone ARP', rarity:'epic', category:'ARs', img:IMAGES['Tone ARP'] },
-  { name:'300 ARP', rarity:'epic', category:'ARs', img:IMAGES['300 ARP'] },
-  { name:'G17 Switch', rarity:'epic', category:'Pistols', img:IMAGES['G17 Switch'] },
-  { name:'G17B', rarity:'epic', category:'Pistols', img:IMAGES['G17B'] },
-  { name:'G40', rarity:'epic', category:'Pistols', img:IMAGES['G40'] },
- 
-  { name:'Red ARP', rarity:'epic', category:'ARs', img:IMAGES['Red ARP'] },
-  { name:'MPA30', rarity:'epic', category:'SMG', img:IMAGES['MPA30'] },
-  { name:'Keltec', rarity:'epic', category:'SMG', img:IMAGES['Keltec'] },
-  { name:'Incognito G19', rarity:'epic', category:'Pistols', img:IMAGES['Incognito G19'] },
-
-  /* -------- LEGENDARY -------- */
-  { name:'AK-47', rarity:'legendary', category:'ARs', img:IMAGES['AK-47'] },
-  { name:'HELLPUP DRACO', rarity:'legendary', category:'ARs', img:IMAGES['HELLPUP DRACO'] },
-  { name:'All Black Draco', rarity:'legendary', category:'ARs', img:IMAGES['All Black Draco'] },
-  { name:'ZPAP M92', rarity:'legendary', category:'ARs', img:IMAGES['ZPAP M92'] },
-  { name:'Deagle', rarity:'legendary', category:'Pistols', img:IMAGES['Deagle'] },
-  { name:'G18c', rarity:'legendary', category:'Pistols', img:IMAGES['G18c'] },
-  { name:'XDM-Elite', rarity:'legendary', category:'Pistols', img:IMAGES['XDM-Elite'] },
-  { name:'P90', rarity:'legendary', category:'SMG', img:IMAGES['P90'] },
-  { name:'MP5A3', rarity:'legendary', category:'SMG', img:IMAGES['MP5A3'] },
-  { name:'Red Draco', rarity:'legendary', category:'ARs', img:IMAGES['Red Draco'] },
-  { name:'M16A1', rarity:'legendary', category:'ARs', img:IMAGES['M16A1'] }
-],
-
-testdrops: [
+  testdrops: [
     { name:'.38 Special', rarity:'common', category:'Pistols', img:IMAGES['.38 Special'] || FALLBACK },
     { name:'Ghost Glock 17', rarity:'common', category:'Pistols', img:IMAGES['Ghost Glock 17'] || FALLBACK },
     { name:'Beretta M9', rarity:'common', category:'Pistols', img:IMAGES['Beretta M9'] || FALLBACK },
@@ -931,10 +841,6 @@ testdrops: [
     { name:'Fn57', rarity:'rare', category:'Pistols',img:IMAGES['Fn57'] || FALLBACK },
     { name:'G19 GFlex', rarity:'rare', category:'Pistols',img:IMAGES['G19 GFlex'] || FALLBACK },
 
-  ],
-  attachments: [
-    { name:'Extended Magazine', rarity:'rare', category:'Mags', img:FALLBACK },
-    { name:'Flashlight', rarity:'uncommon', category:'Mags', img:FALLBACK }
   ],
   drugs: [
     { name:'RP 10', rarity:'common', category:'Common', img:FALLBACK },
@@ -951,10 +857,7 @@ testdrops: [
 
 /* weights */
 const DEFAULT_WEIGHTS = {
-  tier1: { common:35, uncommon:40, rare:25, epic:10 },
-  tier2: { uncommon:15, rare:40, epic:30, legendary:15 },
   testdrops: { common:40, uncommon:30, rare:20, epic:5 },
-  attachments: { uncommon:50, rare:30, epic:15, legendary:5 },
   drugs: { common:35, uncommon:25, rare:25, epic:15 }
 };
 
@@ -1003,7 +906,7 @@ const statFire = document.getElementById('statFire');
 const statAmmo = document.getElementById('statAmmo');
 const statMagazine = document.getElementById('statMagazine');
 
-let activeTab = 'tier1';
+let activeTab = 'testdrops';
 let activeSub = 'All';
 let acquired = [];
 let spinning = false;
@@ -1033,10 +936,7 @@ function loadAdmin(){ const cfg = loadCfg(); adminWebhook.value = cfg.webhook||'
 
 /* ---------- subtabs sets ---------- */
 const SUBTABS = {
-  tier1: ['All','Pistols','SMG','ARs','Specials'],
-  tier2: ['All','ARs','Snipers','LMGs'],
   testdrops: ['All','Pistols','SMG'],
-  attachments: ['All','Mags','Optics','Other'],
   drugs: ['All','Common','Rare']
 };
 function renderSubtabs(tab){
@@ -1058,20 +958,21 @@ function renderSubtabs(tab){
   activeSub = arr[0];
   
   // Update filter dropdown based on tab
-  if(tab === 'tier1') {
+  if(tab === 'testdrops') {
     filterSelect.innerHTML = `
       <option value="all">All</option>
       <option value="common">Common</option>
       <option value="uncommon">Uncommon</option>
       <option value="rare">Rare</option>
+      <option value="epic">Epic</option>
     `;
-  } else if(tab === 'tier2' || tab === 'testdrops') {
+  } else if(tab === 'drugs') {
     filterSelect.innerHTML = `
       <option value="all">All</option>
+      <option value="common">Common</option>
       <option value="uncommon">Uncommon</option>
       <option value="rare">Rare</option>
       <option value="epic">Epic</option>
-      <option value="legendary">Legendary</option>
     `;
   } else {
     filterSelect.innerHTML = `
@@ -1080,7 +981,6 @@ function renderSubtabs(tab){
       <option value="uncommon">Uncommon</option>
       <option value="rare">Rare</option>
       <option value="epic">Epic</option>
-      <option value="legendary">Legendary</option>
     `;
   }
 }
@@ -1117,15 +1017,9 @@ function createCard(item){
   return el;
 }
 
-/* render grid (handles turf) */
+/* render grid */
 function renderGrid(){
   const nodes = itemsForTab(activeTab);
-  if(activeTab === 'turf'){
-    const local = 'images/turfmap.png';
-    const remote = 'Turf.png';
-    contentArea.innerHTML = `<div class="turf-map"><img src="${local}" alt="Turf Map" onerror="this.onerror=null; this.src='${remote}';"></div>`;
-    return;
-  }
 
   contentArea.innerHTML = `<div class="grid-wrap"><div class="grid" id="itemGrid" aria-live="polite"></div></div>`;
   itemGrid = document.getElementById('itemGrid');
@@ -1230,9 +1124,8 @@ spinStartBtn.addEventListener('click', async ()=>{
   landedGunDisplay.style.display = 'none';
   
   // Determine how many items to drop based on tier
-  let itemCount = 4; // Default for tier1
-  if(activeTab === 'testdrops') itemCount = 2;
-  else if(activeTab === 'tier2') itemCount = 6;
+  let itemCount = 2; // Default for testdrops
+  if(activeTab === 'drugs') itemCount = 2;
   
   const pickedItems = [];
   
